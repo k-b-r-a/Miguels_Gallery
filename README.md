@@ -1,21 +1,33 @@
-# bun-react-tailwind-template
+# 🐒 Miguel's Gallery 🐒 - Official Website 2025
 
-To install dependencies:
+This project is designed to [@mykegallery](https://www.instagram.com/mykegallery/)
 
-```bash
+![banner](./my-vue-app/public/vite.svg) <!-- Not yet. -->
+
+### 📝 Project License
+
+Important: You may use this open-source project as-is, **but the license doesn't permit creating modified versions or derivatives.** <!-- See the [LICENSE.md](LICENSE.md) file for more information. -->
+
+### 🛠️ Current technologies
+
+- [React 19](https://es.react.dev/)
+- [TailwindCSS 4.0](https://tailwindcss.com)
+- [MaterialUi Icons](https://mui.com/material-ui)
+
+### 🛠️ Future technologies
+
+- [RESTful API]() still deciding which to use, Node.js or Spring Boot or both to learn
+
+## 🔧 Installation
+
+Install the dependencies
+
+```sh
 bun install
 ```
 
-To start a development server:
+Start the project in development mode
 
-```bash
-bun dev
+```sh
+bun run dev
 ```
-
-To run for production:
-
-```bash
-bun start
-```
-
-This project was created using `bun init` in bun v1.2.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
