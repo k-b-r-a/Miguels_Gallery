@@ -1,5 +1,14 @@
-export function BentoCard({ id, title, img, horientation }: { id: number; title: string; img: string; horientation: string }) {
-
+export function BentoCard({
+  id,
+  title,
+  img,
+  horientation,
+}: {
+  id: number;
+  title: string;
+  img: string;
+  horientation: string;
+}) {
   return (
     <div className="relative max-lg:row-auto">
       <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-t-[2rem]"></div>
@@ -12,12 +21,21 @@ export function BentoCard({ id, title, img, horientation }: { id: number; title:
           />
         </div>
       </div>
-    </div >
-  )
+    </div>
+  );
 }
 
-export function BentoCardLg({ id, title, img, horientation }: { id: number; title: string; img: string; horientation: string }) {
-
+export function BentoCardLg({
+  id,
+  title,
+  img,
+  horientation,
+}: {
+  id: number;
+  title: string;
+  img: string;
+  horientation: string;
+}) {
   return (
     <div className="relative lg:row-span-3 ">
       <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)]">
@@ -30,10 +48,6 @@ export function BentoCardLg({ id, title, img, horientation }: { id: number; titl
           />
         </div>
       </div>
-
-    </div >
-  )
+    </div>
+  );
 }
-
-
-
