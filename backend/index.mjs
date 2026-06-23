@@ -132,7 +132,7 @@ async function syncCloudinaryPhotos() {
         const data = {
           cloudinaryId: res.public_id,
           resourceType: isVideo ? 'video' : 'image',
-          status: existing ? (existing.status || 'published') : 'pending',
+          status: existing ? (existing.status || 'published') : 'published',
           title: existing?.title || res.public_id.split('/').pop().split('.')[0],
           description: existing?.description || 'Detectado automáticamente',
           category: existing?.category || 'General',
