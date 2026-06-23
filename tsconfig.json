@@ -11,6 +11,17 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
-  }
+    },
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "dist",
+    "backend",
+    "my-vue-app",
+    "node_modules",
+    "eslint.config.js",
+    "index.mjs"
+  ]
 }

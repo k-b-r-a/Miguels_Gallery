@@ -5,10 +5,17 @@ import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 
 export default defineConfig([
+  { ignores: ['dist/'] },
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
-    languageOptions: { globals: { ...globals.browser, React: 'writable' } },
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        React: 'writable'
+      }
+    },
   },
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
