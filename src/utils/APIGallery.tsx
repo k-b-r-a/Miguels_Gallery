@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 
-interface ApiDataFetcherProps {
-    url: string;
-}
-
-export function ApiDataFetcher({ url }: ApiDataFetcherProps) {
-    const [data, setData] = useState<[] | null>(null);
+export function useApiData<T>(url: string) {
+    const [data, setData] = useState<T | null>(null);
 
     useEffect(() => {
         fetch(url)
@@ -16,15 +12,12 @@ export function ApiDataFetcher({ url }: ApiDataFetcherProps) {
                 return response.json();
             })
             .then(data => {
-                console.log('Data fetched:', data);
                 setData(data);
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error fetching data:', error);
             });
-    }, []);
+    }, [url]);
 
-    return (
-        data
-    );
+    return data;
 }
