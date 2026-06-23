@@ -1,8 +1,7 @@
-import LinkButton from '@/utils/LinkButton';
+import LinkButton from '../utils/LinkButton';
 import InstagramIcon from '@mui/icons-material/Instagram';
 
 export function SocialCard({
-  id,
   username,
   socialpage,
   img,
@@ -27,9 +26,9 @@ export function SocialCard({
             />
           </div>
           <div className="flex flex-wrap mt-2">
-            <LinkButton href={src}>
-              <InstagramIcon color="primary"></InstagramIcon>
-              <span>{username}</span>
+            <LinkButton href={src} className="scale-90 sm:scale-100">
+              <InstagramIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--accent)' }} />
+              <span className="font-bold text-xs sm:text-sm">{username}</span>
             </LinkButton>
           </div>
         </div>
@@ -38,7 +37,7 @@ export function SocialCard({
           <div className="relative flex flex-col items-center col-span-6 row-span-5 gap-8 transition duration-300 ease-in-out transform shadow-xl overflow-clip rounded-xl sm:rounded-xl md:group-hover:-translate-y-1 md:group-hover:shadow-2xl lg:border lg:border-gray-800 lg:hover:border-gray-700 lg:hover:bg-gray-800/50">
             <img
               alt="xsd"
-              className="object-cover object-top w-[30rem] h-[15rem] transition duration-500  md:scale-110 md:group-hover:scale-105 "
+              className="object-cover object-top w-120 h-60 transition duration-500  md:scale-110 md:group-hover:scale-105 "
               loading="lazy"
               src={socialpage}
             />

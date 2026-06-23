@@ -1,141 +1,143 @@
 'use client';
+import { SunIcon, MoonIcon, PaintBrushIcon, ArrowRightStartOnRectangleIcon, EnvelopeIcon, UserIcon, PhotoIcon, CameraIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
+import { useTheme } from '../utils/ThemeContext';
+import { useAuth } from '../utils/AuthContext';
+import { useState, useRef } from 'react';
+import LoginModal from './LoginModal';
 
-import { useState } from 'react';
-import {
-  Dialog,
-  DialogPanel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  PopoverGroup,
-} from '@headlessui/react';
-import {
-  ArrowPathIcon,
-  ChartPieIcon,
-  CursorArrowRaysIcon,
-  FingerPrintIcon,
-  SquaresPlusIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
-import {
-  ChevronDownIcon,
-  PhoneIcon,
-  PlayCircleIcon,
-} from '@heroicons/react/20/solid';
+interface HeaderOptionItem {
+  title: string;
+  ref: React.RefObject<HTMLDivElement | null>;
+}
 
-const products = [
-  {
-    name: 'Analytics',
-    description: 'Get a better understanding of your traffic',
-    href: '#',
-    icon: ChartPieIcon,
-  },
-  {
-    name: 'Engagement',
-    description: 'Speak directly to your customers',
-    href: '#',
-    icon: CursorArrowRaysIcon,
-  },
-  {
-    name: 'Security',
-    description: 'Your customers’ data will be safe and secure',
-    href: '#',
-    icon: FingerPrintIcon,
-  },
-  {
-    name: 'Integrations',
-    description: 'Connect with third-party tools',
-    href: '#',
-    icon: SquaresPlusIcon,
-  },
-  {
-    name: 'Automations',
-    description: 'Build strategic funnels that will convert',
-    href: '#',
-    icon: ArrowPathIcon,
-  },
-];
-const callsToAction = [
-  { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
-  { name: 'Contact sales', href: '#', icon: PhoneIcon },
-];
+interface HeaderProps {
+  headerOptions: HeaderOptionItem[];
+}
 
-export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Header({ headerOptions }: HeaderProps) {
+  const { theme, setTheme } = useTheme();
+  const { isAdmin, logout } = useAuth();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleScrollTo(ref: React.RefObject<HTMLDivElement | null>) {
+    ref.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
+  // Hidden Login logic (5s long press)
+  const startLongPress = () => {
+    longPressTimer.current = setTimeout(() => {
+      setIsLoginOpen(true);
+    }, 2000);
+  };
+
+  const endLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const themes = [
+    { id: 'light', icon: SunIcon, label: 'Luz' },
+    { id: 'dark', icon: MoonIcon, label: 'Noche' },
+    { id: 'morado', icon: PaintBrushIcon, label: 'Púrpura' },
+  ] as const;
+
+  const currentTheme = themes.find(t => t.id === theme) || themes[0];
+
+  const cycleTheme = () => {
+    const currentIndex = themes.findIndex(t => t.id === theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex].id);
+  };
 
   return (
-    <header className=" fixed top-0 z-10 flex items-center justify-center w-full">
+    <motion.header
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="fixed top-0 z-40 flex items-center justify-center w-full px-4"
+    >
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-7xl items-center justify-between mt-5 py-1 px-0.5 sm: p-4 lg:px-10 text-sm font-medium rounded-full bg-purple-100/80"
+        className="mx-auto flex max-w-fit items-center justify-between mt-5 py-1.5 px-3 sm:px-4 lg:px-6 text-sm font-medium rounded-full backdrop-blur-md shadow-lg transition-colors duration-300 border border-white/10"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--bg-card) 80%, transparent)'
+        }}
       >
-        <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Miguel&apos;s Gallery</span>
-            <img
-              alt=""
-              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-8 w-auto"
-            />
-          </a>
-        </div>
-        <div className="flex lg:hidden"></div>
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12"></PopoverGroup>
-      </nav>
-      <Dialog
-        open={mobileMenuOpen}
-        onClose={setMobileMenuOpen}
-        className="lg:hidden"
-      >
-        <div className="fixed inset-0 z-10" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-          <div className="flex items-center justify-between">
-            <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Miguel&apos;s Gallery</span>
-              <img
-                alt=""
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
-              />
-            </a>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(false)}
-              className="-m-2.5 rounded-md p-2.5 text-gray-700"
+        <div className="flex items-center gap-1 sm:gap-4">
+          {/* Icons Section */}
+          {headerOptions.map((option) => {
+            const isAboutMe = option.title.toLowerCase().includes('sobre') || option.title.toLowerCase().includes('about');
+            const isGallery = option.title.toLowerCase().includes('galería') || option.title.toLowerCase().includes('gallery');
+            const isHome = option.title.toLowerCase().includes('inicio') || option.title.toLowerCase().includes('home');
+            
+            const Icon = isHome 
+              ? CameraIcon
+              : isAboutMe
+                ? UserIcon
+                : isGallery
+                  ? PhotoIcon
+                  : EnvelopeIcon;
+
+            return (
+              <motion.button
+                key={option.title}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleScrollTo(option.ref)}
+                onMouseDown={isAboutMe ? startLongPress : undefined}
+                onMouseUp={isAboutMe ? endLongPress : undefined}
+                onMouseLeave={isAboutMe ? endLongPress : undefined}
+                onTouchStart={isAboutMe ? startLongPress : undefined}
+                onTouchEnd={isAboutMe ? endLongPress : undefined}
+                className="p-2 rounded-2xl transition-all hover:bg-black/5 flex flex-col items-center gap-0.5"
+                style={{ color: 'var(--text-main)' }}
+                title={option.title}
+              >
+                <Icon className="h-6 w-6" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter hidden sm:block">{option.title}</span>
+              </motion.button>
+            );
+          })}
+
+          <div className="h-8 w-px mx-1" style={{ backgroundColor: 'var(--border)' }} />
+
+          {/* Logout Button (Only visible if Admin, otherwise hidden) */}
+          {isAdmin && (
+            <motion.button
+              whileHover={{ scale: 1.05, color: '#ef4444' }}
+              whileTap={{ scale: 0.95 }}
+              onClick={logout}
+              className="p-2 rounded-2xl transition-all hover:bg-black/5 flex flex-col items-center gap-0.5"
+              style={{ color: 'var(--text-main)' }}
+              title="Cerrar sesión"
             >
-              <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="size-6" />
-            </button>
-          </div>
-          <div className="mt-6 flow-root">
-            <div className="-my-6 divide-y divide-gray-500/10">
-              <div className="space-y-2 py-6">
-                <Disclosure as="div" className="-mx-3">
-                  <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
-                    Product
-                    <ChevronDownIcon
-                      aria-hidden="true"
-                      className="size-5 flex-none group-data-open:rotate-180"
-                    />
-                  </DisclosureButton>
-                  <DisclosurePanel className="mt-2 space-y-2">
-                    {[...products, ...callsToAction].map((item) => (
-                      <DisclosureButton
-                        key={item.name}
-                        as="a"
-                        href={item.href}
-                        className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-gray-900 hover:bg-gray-50"
-                      >
-                        {item.name}
-                      </DisclosureButton>
-                    ))}
-                  </DisclosurePanel>
-                </Disclosure>
-              </div>
-            </div>
-          </div>
-        </DialogPanel>
-      </Dialog>
-    </header>
+              <ArrowRightStartOnRectangleIcon className="h-6 w-6" />
+              <span className="text-[10px] font-bold uppercase tracking-tighter hidden sm:block">Salir</span>
+            </motion.button>
+          )}
+
+          {/* Theme Button (Always Last) */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={cycleTheme}
+            className="p-2 rounded-2xl transition-all hover:bg-black/5 flex flex-col items-center gap-0.5"
+            style={{ color: 'var(--text-main)' }}
+            title={`Cambiar tema (Actual: ${currentTheme.label})`}
+          >
+            <currentTheme.icon className="h-6 w-6" />
+            <span className="text-[10px] font-bold uppercase tracking-tighter hidden sm:block">{currentTheme.label}</span>
+          </motion.button>
+        </div>
+      </nav>
+
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+    </motion.header>
   );
 }
