@@ -1,21 +1,170 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    @apply text-[rgba(255,255,255,0.87)] bg-[#242424] font-sans;
-  }
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-cinzel: "Cinzel", serif;
+  --font-space: "Space Grotesk", sans-serif;
+}
 
+:root {
+  /* Light Theme (Default) */
+  --bg-app: #ffffff;
+  --bg-card: #f9fafb;
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --accent: #9333ea; /* Purple as default accent */
+  --border: #e5e7eb;
+}
+
+[data-theme='dark'] {
+  --bg-app: #0a0a0a;
+  --bg-card: #171717;
+  --text-main: #ededed;
+  --text-muted: #a1a1a1;
+  --accent: #8b5cf6;
+  --border: #262626;
+}
+
+[data-theme='morado'] {
+  /* Deep Purple Theme Palette */
+  --bg-app: #0f011a;
+  --bg-card: #1c052d;
+  --text-main: #f5f3ff;
+  --text-muted: #9d71fd;
+  --accent: #c084fc;
+  --border: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  overflow-x: hidden;
+  scroll-snap-type: y proximity; /* Proximity avoids aggressive skips */
+}
+
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* VHS Aesthetic Effects */
+.vhs-scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.vhs-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.vhs-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 11;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.vhs-glitch {
+  animation: vhs-glitch-anim 5s infinite;
+}
+
+@keyframes vhs-glitch-anim {
+  0% { transform: translate(0) }
+  1% { transform: translate(-2px, 1px) }
+  2% { transform: translate(2px, -1px) }
+  3% { transform: translate(0) }
+  100% { transform: translate(0) }
+}
+
+.vhs-tracking {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  top: -2px;
+  filter: blur(1px);
+  animation: vhs-tracking-anim 8s infinite linear;
+  z-index: 12;
+}
+
+@keyframes vhs-tracking-anim {
+  0% { top: -2px; opacity: 0; }
+  5% { opacity: 0.5; }
+  10% { top: 100%; opacity: 0; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@layer base {
   body {
-    @apply grid place-items-center min-w-[320px] min-h-screen relative m-0;
+    @apply transition-colors duration-300;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    min-width: 320px;
+    position: relative;
+    margin: 0;
   }
 }
 
-body::before {
-  background: #000;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  scroll-behavior: smooth;
+/* Dynamic Custom Cursor Class */
+.custom-cursor-active, 
+.custom-cursor-active a, 
+.custom-cursor-active button, 
+.custom-cursor-active input, 
+.custom-cursor-active textarea, 
+.custom-cursor-active [role="button"], 
+.custom-cursor-active .cursor-pointer {
+  cursor: none !important;
+}
+
+/* Responsive Bento Grid Spans */
+.bento-card-resizable {
+  grid-column: span var(--cols, 1);
+  grid-row: span var(--rows, 2);
+}
+
+@media (max-width: 640px) {
+  .bento-card-resizable {
+    /* Limit columns to 2 on mobile grid using pre-calculated variables */
+    grid-column: span var(--cols-mobile, 1);
+    /* Adjust rows using pre-calculated variables */
+    grid-row: span var(--rows-mobile, 2);
+  }
+}
+
+.font-Cinzel {
+  font-family: var(--font-cinzel);
+}
+
+.font-SpaceGrotesk {
+  font-family: var(--font-space);
 }
 
 @media (prefers-reduced-motion) {
