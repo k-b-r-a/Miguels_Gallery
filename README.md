@@ -1,33 +1,70 @@
-# 🐒 Miguel's Gallery 🐒 - Official Website 2025
+# 📸 Miguel's Gallery 📸 - Official Website
 
-This project is designed to [@mykegallery](https://www.instagram.com/mykegallery/)
+Galería fotográfica moderna construida con **React 19**, **Bun** y un backend automatizado con **Node.js**, **Cloudinary** y **MongoDB**.
 
-![banner](./my-vue-app/public/vite.svg) <!-- Not yet. -->
+Este proyecto está diseñado para mostrar el trabajo de [@mykegallery](https://www.instagram.com/mykegallery/).
 
-### 📝 Project License
+## 🚀 Características
 
-Important: You may use this open-source project as-is, **but the license doesn't permit creating modified versions or derivatives.** <!-- See the [LICENSE.md](LICENSE.md) file for more information. -->
+- **Bento Grid Adaptativo**: Diseño elegante que se ajusta automáticamente según la orientación de las fotos (horizontal/vertical).
+- **Sincronización Automática**: El backend detecta fotos nuevas en Cloudinary y las registra en MongoDB al arrancar.
+- **Gestión de Imágenes**: Soporte para subida, borrado y metadatos personalizados (títulos, descripciones).
+- **Animaciones Premium**: Interfaz fluida impulsada por **Framer Motion**.
+- **Arquitectura Unificada**: Frontend y Backend gestionados desde una única raíz para facilitar el desarrollo.
 
-### 🛠️ Current technologies
+## 🛠️ Tecnologías
 
-- [React 19](https://es.react.dev/)
-- [TailwindCSS 4.0](https://tailwindcss.com)
-- [MaterialUi Icons](https://mui.com/material-ui)
+### Frontend
+- **React 19** (vanguardia en UI)
+- **Bun** (Runtime y Bundler ultra rápido)
+- **Tailwind CSS v4** (Estilos modernos y optimizados)
+- **Framer Motion** (Animaciones e interacciones)
+- **Headless UI** & **Material UI Icons**
 
-### 🛠️ Future technologies
+### Backend
+- **Node.js** & **Express 5**
+- **MongoDB** (Persistencia de metadatos)
+- **Cloudinary SDK** (Almacenamiento y optimización de imágenes)
+- **Multer** (Gestión de subidas de archivos)
 
-- [RESTful API]() still deciding which to use, Node.js or Spring Boot or both to learn
+## 🔧 Instalación y Configuración
 
-## 🔧 Installation
+1.  **Clonar el repositorio**:
+    ```sh
+    git clone https://github.com/k-b-r-a/Miguels_gallery.git
+    cd Miguels_gallery
+    ```
 
-Install the dependencies
+2.  **Instalar dependencias**:
+    ```sh
+    bun install
+    ```
 
-```sh
-bun install
-```
+3.  **Configurar variables de entorno**:
+    Crea un archivo `.env` en la raíz del proyecto con las siguientes credenciales:
+    ```env
+    # MongoDB
+    MONGO_USER=tu_usuario
+    MONGO_PASSWORD=tu_password
 
-Start the project in development mode
+    # Cloudinary
+    CLOUDINARY_CLOUD_NAME=tu_cloud_name
+    CLOUDINARY_API_KEY=tu_api_key
+    CLOUDINARY_API_SECRET=tu_api_secret
+    ```
 
-```sh
-bun run dev
-```
+## ⌨️ Scripts Disponibles
+
+| Comando | Descripción |
+| :--- | :--- |
+| `bun run dev` | Inicia Frontend (puerto 3000) y Backend (puerto 4000) simultáneamente. |
+| `bun run dev:frontend` | Inicia solo el servidor de desarrollo de React con Hot Reload. |
+| `bun run dev:backend` | Inicia el servidor Express con Node Watch Mode. |
+| `bun run build` | Genera la versión de producción optimizada en la carpeta `/dist`. |
+
+## 📝 Licencia
+
+Este es un proyecto de código abierto. Puedes usarlo como referencia, pero **no se permiten versiones derivadas o modificadas** sin autorización previa.
+
+---
+Creado con ❤️ por [k-b-r-a](https://github.com/k-b-r-a)
