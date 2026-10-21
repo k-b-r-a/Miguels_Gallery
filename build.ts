@@ -151,6 +151,7 @@ const result = await build({
   sourcemap: 'linked',
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
+    'process.env.API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'https://miguels-gallery.onrender.com'),
   },
   ...cliConfig, // Merge in any CLI-provided options
 });

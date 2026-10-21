@@ -1,6 +1,6 @@
-const getBackendHost = () => {
-  // 1. Variable de entorno (inyectada por el bundler o GitHub Actions)
-  if (process.env.API_BASE_URL) {
+const getBackendHost = (): string => {
+  // 1. Variable de entorno si está disponible
+  if (typeof process !== 'undefined' && process.env?.API_BASE_URL) {
     return process.env.API_BASE_URL;
   }
 
@@ -20,9 +20,9 @@ const getBackendHost = () => {
   return 'https://miguels-gallery.onrender.com';
 };
 
-export const API_BASE_URL = getBackendHost();
+export const API_BASE_URL: string = getBackendHost();
 
-export const getApiUrl = (endpoint: string) => {
+export const getApiUrl = (endpoint: string): string => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${API_BASE_URL}${cleanEndpoint}`;
 };
