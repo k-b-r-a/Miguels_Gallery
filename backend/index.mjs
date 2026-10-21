@@ -16,7 +16,10 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'gallery_secret_key_2026';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD_HASH =
-  process.env.ADMIN_PASSWORD_HASH || bcrypt.hashSync('admin123', 10);
+  process.env.ADMIN_PASSWORD_HASH ||
+  (process.env.ADMIN_PASSWORD
+    ? bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10)
+    : bcrypt.hashSync('admin123', 10));
 const PORT = process.env.PORT ?? 4000;
 const MONGO_URI =
   process.env.MONGO_URI ||
