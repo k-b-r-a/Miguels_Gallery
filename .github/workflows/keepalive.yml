@@ -1,0 +1,25 @@
+name: Keep Alive MongoDB & Render
+
+on:
+  schedule:
+    # Se ejecuta todos los días a las 12:00 UTC (9:00 AM ARG)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub Actions
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API to query MongoDB and wake up Render
+        run: |
+          echo "Sending ping to API to keep MongoDB active..."
+          STATUS=$(curl -s -o response.json -w "%{http_code}" https://miguels-gallery.onrender.com/api/photos)
+          echo "HTTP Status: $STATUS"
+          cat response.json | head -c 200
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo -e "\n✅ Success! MongoDB queried and Render kept alive."
+          else
+            echo -e "\n⚠️ Warning: Got HTTP status $STATUS. Retrying in 15 seconds..."
+            sleep 15
+            curl -f https://miguels-gallery.onrender.com/api/photos || exit 0
+          fi
