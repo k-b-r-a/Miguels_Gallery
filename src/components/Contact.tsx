@@ -15,7 +15,7 @@ const Contact = forwardRef<HTMLDivElement>((_props, ref) => {
 
   return (
     <div
-      className="relative py-24 px-6 sm:px-10 lg:px-20 transition-colors duration-300 overflow-hidden backdrop-blur-[2px]"
+      className="relative py-24 px-4 sm:px-10 lg:px-20 transition-colors duration-300 overflow-hidden backdrop-blur-[2px]"
       ref={(el) => {
         if (typeof ref === 'function') ref(el);
         else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el;
@@ -60,37 +60,37 @@ const Contact = forwardRef<HTMLDivElement>((_props, ref) => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-8 sm:p-12 rounded-[3rem] border border-white/5 shadow-2xl backdrop-blur-md"
+              className="p-5 sm:p-12 rounded-[2rem] sm:rounded-[3rem] border border-white/5 shadow-2xl backdrop-blur-md overflow-hidden"
               style={{ backgroundColor: 'color-mix(in srgb, var(--bg-card) 40%, transparent)' }}
             >
-              <div className="grid grid-cols-1 gap-8">
-                <a href="mailto:miguel.elfotografoo@gmail.com" className="flex items-center gap-4 group/item">
-                  <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500 group-hover/item:bg-purple-500 group-hover/item:text-white transition-all duration-300">
-                    <EnvelopeIcon className="w-6 h-6" />
+              <div className="grid grid-cols-1 gap-6 sm:gap-8">
+                <a href="mailto:miguel.elfotografoo@gmail.com" className="flex items-center gap-3.5 sm:gap-4 group/item min-w-0 w-full">
+                  <div className="p-2.5 sm:p-3 rounded-2xl bg-purple-500/10 text-purple-500 group-hover/item:bg-purple-500 group-hover/item:text-white transition-all duration-300 shrink-0">
+                    <EnvelopeIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1" style={{ color: 'var(--text-main)' }}>Email Profesional</p>
-                    <p className="text-lg sm:text-xl font-bold font-SpaceGrotesk group-hover/item:text-purple-500 transition-colors" style={{ color: 'var(--text-main)' }}>miguel.elfotografoo@gmail.com</p>
+                    <p className="text-sm min-[380px]:text-base sm:text-lg lg:text-xl font-bold font-SpaceGrotesk group-hover/item:text-purple-500 transition-colors break-all sm:break-normal" style={{ color: 'var(--text-main)' }}>miguel.elfotografoo@gmail.com</p>
                   </div>
                 </a>
 
-                <a href="https://wa.me/573212270147" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/item">
-                  <div className="p-3 rounded-2xl bg-green-500/10 text-green-500 group-hover/item:bg-green-500 group-hover/item:text-white transition-all duration-300">
-                    <PhoneIcon className="w-6 h-6" />
+                <a href="https://wa.me/573212270147" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3.5 sm:gap-4 group/item min-w-0 w-full">
+                  <div className="p-2.5 sm:p-3 rounded-2xl bg-green-500/10 text-green-500 group-hover/item:bg-green-500 group-hover/item:text-white transition-all duration-300 shrink-0">
+                    <PhoneIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1" style={{ color: 'var(--text-main)' }}>WhatsApp Directo</p>
-                    <p className="text-lg sm:text-xl font-bold font-SpaceGrotesk group-hover/item:text-green-500 transition-colors" style={{ color: 'var(--text-main)' }}>+57 321 227 0147</p>
+                    <p className="text-sm min-[380px]:text-base sm:text-lg lg:text-xl font-bold font-SpaceGrotesk group-hover/item:text-green-500 transition-colors break-words" style={{ color: 'var(--text-main)' }}>+57 321 227 0147</p>
                   </div>
                 </a>
 
-                <a href="https://instagram.com/miguel_elfotografo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/item">
-                  <div className="p-3 rounded-2xl bg-pink-500/10 text-pink-500 group-hover/item:bg-pink-500 group-hover/item:text-white transition-all duration-300">
-                    <ChatBubbleLeftRightIcon className="w-6 h-6" />
+                <a href="https://instagram.com/miguel_elfotografo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3.5 sm:gap-4 group/item min-w-0 w-full">
+                  <div className="p-2.5 sm:p-3 rounded-2xl bg-pink-500/10 text-pink-500 group-hover/item:bg-pink-500 group-hover/item:text-white transition-all duration-300 shrink-0">
+                    <ChatBubbleLeftRightIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1" style={{ color: 'var(--text-main)' }}>Instagram</p>
-                    <p className="text-lg sm:text-xl font-bold font-SpaceGrotesk group-hover/item:text-pink-500 transition-colors" style={{ color: 'var(--text-main)' }}>@miguel_elfotografo</p>
+                    <p className="text-sm min-[380px]:text-base sm:text-lg lg:text-xl font-bold font-SpaceGrotesk group-hover/item:text-pink-500 transition-colors break-all sm:break-normal" style={{ color: 'var(--text-main)' }}>@miguel_elfotografo</p>
                   </div>
                 </a>
               </div>
