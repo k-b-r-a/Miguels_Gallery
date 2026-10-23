@@ -6,7 +6,8 @@ import {
   PlusIcon,
   TrashIcon,
   PencilSquareIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  MagnifyingGlassPlusIcon
 } from '@heroicons/react/24/outline';
 import { PhotoDialog } from './BentoCards';
 import { useAuth } from '../utils/AuthContext';
@@ -57,6 +58,7 @@ export default function VhsCylinderCarousel({
 }: VhsCylinderCarouselProps) {
   const { token } = useAuth();
   const [editingItem, setEditingItem] = useState<PhotoItem | null>(null);
+  const [viewingItem, setViewingItem] = useState<PhotoItem | null>(null);
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -97,26 +99,55 @@ export default function VhsCylinderCarousel({
       const width = window.innerWidth;
       const count = Math.max(totalSlots, 6);
 
-      if (width < 480) {
-        const cardWidth = Math.min(width - 48, 280);
+      if (width < 400) {
+        // Very small mobile screens (iPhone SE, narrow screens)
+        const cardWidth = Math.min(width - 32, 280);
         const cardHeight = Math.round(cardWidth * 0.62);
-        const radius = Math.max(220, Math.round((cardWidth / 2) / Math.tan(Math.PI / count)));
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(170, naturalRadius), 240));
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 700 });
+      } else if (width < 640) {
+        // Standard mobile phones
+        const cardWidth = Math.min(width - 48, 330);
+        const cardHeight = Math.round(cardWidth * 0.62);
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(220, naturalRadius), 300));
         setDimensions({ cardWidth, cardHeight, radius, perspective: 850 });
       } else if (width < 768) {
-        const cardWidth = 360;
-        const cardHeight = 225;
-        const radius = Math.max(300, Math.round((cardWidth / 2) / Math.tan(Math.PI / count)));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1000 });
+        // Large phones & phablets
+        const cardWidth = 380;
+        const cardHeight = 240;
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(270, naturalRadius), 360));
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 950 });
       } else if (width < 1024) {
+        // Tablets / iPads
         const cardWidth = 460;
         const cardHeight = 285;
-        const radius = Math.max(400, Math.round((cardWidth / 2) / Math.tan(Math.PI / count)));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1150 });
-      } else {
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(340, naturalRadius), 440));
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1100 });
+      } else if (width < 1440) {
+        // Standard Desktop / Laptops
         const cardWidth = 540;
         const cardHeight = 340;
-        const radius = Math.max(480, Math.round((cardWidth / 2) / Math.tan(Math.PI / count)));
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(420, naturalRadius), 520));
         setDimensions({ cardWidth, cardHeight, radius, perspective: 1300 });
+      } else if (width < 1920) {
+        // Large desktop displays (1440p / QHD)
+        const cardWidth = 640;
+        const cardHeight = 400;
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(500, naturalRadius), 620));
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1550 });
+      } else {
+        // Ultra-wide & 4K screens (1920px+)
+        const cardWidth = 740;
+        const cardHeight = 460;
+        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
+        const radius = Math.round(Math.min(Math.max(580, naturalRadius), 720));
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1800 });
       }
     };
 
@@ -309,32 +340,32 @@ export default function VhsCylinderCarousel({
 
   return (
     <div
-      className="relative w-full overflow-hidden bg-black/40 border-y border-white/5 mb-12 select-none py-10 sm:py-16"
+      className="relative w-full overflow-hidden bg-black/60 backdrop-blur-md border-y border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.5)] mb-12 select-none py-10 sm:py-16"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* Tape Alignment Horizontal Guides */}
-      <div className="absolute inset-x-0 h-px bg-white/10 top-1/4 z-0 pointer-events-none" />
-      <div className="absolute inset-x-0 h-px bg-white/10 bottom-1/4 z-0 pointer-events-none" />
+      <div className="absolute inset-x-0 h-px bg-white/15 top-1/4 z-0 pointer-events-none" />
+      <div className="absolute inset-x-0 h-px bg-white/15 bottom-1/4 z-0 pointer-events-none" />
 
       {/* Navigation Controls */}
-      <div className="absolute top-1/2 left-3 sm:left-6 z-40 -translate-y-1/2">
+      <div className="absolute top-1/2 left-1.5 sm:left-4 md:left-6 z-40 -translate-y-1/2">
         <button
           onClick={handlePrev}
           aria-label="Anterior cassette"
-          className="p-3 sm:p-4 rounded-full bg-black/70 border border-white/15 text-white hover:bg-purple-600 hover:border-purple-400 transition-all active:scale-90 shadow-2xl backdrop-blur-md cursor-pointer"
+          className="p-2 sm:p-3.5 md:p-4 rounded-full bg-black/75 border border-white/15 text-white hover:bg-purple-600 hover:border-purple-400 transition-all active:scale-90 shadow-2xl backdrop-blur-md cursor-pointer"
         >
-          <ChevronLeftIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+          <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
-      <div className="absolute top-1/2 right-3 sm:right-6 z-40 -translate-y-1/2">
+      <div className="absolute top-1/2 right-1.5 sm:right-4 md:right-6 z-40 -translate-y-1/2">
         <button
           onClick={handleNext}
           aria-label="Siguiente cassette"
-          className="p-3 sm:p-4 rounded-full bg-black/70 border border-white/15 text-white hover:bg-purple-600 hover:border-purple-400 transition-all active:scale-90 shadow-2xl backdrop-blur-md cursor-pointer"
+          className="p-2 sm:p-3.5 md:p-4 rounded-full bg-black/75 border border-white/15 text-white hover:bg-purple-600 hover:border-purple-400 transition-all active:scale-90 shadow-2xl backdrop-blur-md cursor-pointer"
         >
-          <ChevronRightIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+          <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
@@ -352,9 +383,9 @@ export default function VhsCylinderCarousel({
           height: `${dimensions.cardHeight + 100}px`
         }}
       >
-        {/* Subtle Ground Radial Glow */}
+        {/* Enhanced Ambient Floor Radial Glow */}
         <div
-          className="absolute w-[70%] max-w-[700px] h-20 bg-purple-500/15 rounded-[100%] blur-3xl pointer-events-none"
+          className="absolute w-[85%] max-w-[850px] h-28 bg-purple-500/25 rounded-[100%] blur-3xl pointer-events-none"
           style={{
             transform: `translateY(${dimensions.cardHeight / 2 + 30}px)`
           }}
@@ -378,13 +409,13 @@ export default function VhsCylinderCarousel({
             const isCardActive = absAngle < (angleStep / 2) || (totalSlots === 1);
             const isPending = pendingDeletions.has(slot.item._id);
 
-            // Opacity & depth shading: front is full, sides clear, back dim
-            const opacity = isCardActive ? 1 : absAngle < 90 ? 0.8 : 0.45;
+            // Opacity & depth shading: active card is crisp and prominent, non-focused cards are blurred for depth of field
+            const opacity = isCardActive ? 1 : absAngle < 90 ? 0.75 : 0.35;
             const filter = isCardActive
               ? 'none'
               : absAngle < 90
-              ? 'brightness(0.9)'
-              : 'brightness(0.55) blur(0.7px)';
+              ? 'brightness(0.8) blur(3px)'
+              : 'brightness(0.45) blur(6px)';
 
             return (
               <div
@@ -395,6 +426,7 @@ export default function VhsCylinderCarousel({
                   transform: `rotateY(${slotAngle}deg) translateZ(${dimensions.radius}px)`,
                   opacity,
                   filter,
+                  transition: isDragging ? 'none' : 'filter 0.4s ease, opacity 0.4s ease',
                   zIndex: isCardActive ? 35 : Math.round(100 - absAngle),
                   pointerEvents: isCardActive ? 'auto' : absAngle < 85 ? 'auto' : 'none'
                 }}
@@ -407,8 +439,8 @@ export default function VhsCylinderCarousel({
               >
                 {/* Dual-Faced VHS Cassette Frame */}
                 <div
-                  className={`relative w-full h-full rounded-xl sm:rounded-2xl transition-transform duration-300 ${
-                    isCardActive ? 'scale-100' : 'scale-[0.92]'
+                  className={`group/cassette relative w-full h-full rounded-xl sm:rounded-2xl transition-transform duration-300 ${
+                    isCardActive ? 'scale-100 hover:scale-[1.03]' : 'scale-[0.92]'
                   }`}
                   style={{ transformStyle: 'preserve-3d' }}
                 >
@@ -434,12 +466,12 @@ export default function VhsCylinderCarousel({
                       ))}
                     </div>
 
-                    {/* Media Render */}
+                    {/* Media Render with hover zoom */}
                     {slot.item.resourceType === 'video' ? (
                       <video
                         src={slot.item.img}
                         className={`w-full h-full object-cover select-none pointer-events-none transition-transform duration-700 ${
-                          isCardActive ? 'scale-105 vhs-glitch' : 'scale-100'
+                          isCardActive ? 'scale-105 group-hover/cassette:scale-115 vhs-glitch' : 'scale-100'
                         } ${isPending || slot.item.status === 'pending' ? 'grayscale opacity-50' : ''}`}
                         autoPlay
                         loop
@@ -452,13 +484,26 @@ export default function VhsCylinderCarousel({
                         src={slot.item.img}
                         alt={slot.item.title}
                         className={`w-full h-full object-cover select-none pointer-events-none transition-transform duration-700 ${
-                          isCardActive ? 'scale-105 vhs-glitch' : 'scale-100'
+                          isCardActive ? 'scale-105 group-hover/cassette:scale-115 vhs-glitch' : 'scale-100'
                         } ${isPending || slot.item.status === 'pending' ? 'grayscale opacity-50' : ''}`}
                         style={{ position: 'relative', zIndex: 5 }}
                       />
                     )}
 
-                    {/* Admin Overlay Controls */}
+                    {/* Quick Zoom / Detail View Button for active card */}
+                    {isCardActive && !isPending && slot.item.status !== 'pending' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingItem(slot.item);
+                        }}
+                        className={`absolute ${isAdmin ? 'top-5 left-5' : 'top-5 right-5'} z-40 p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-purple-600 text-white/90 hover:text-white border border-white/20 shadow-xl backdrop-blur-md transition-all active:scale-90 cursor-pointer`}
+                        title="Ver detalle / Zoom"
+                        aria-label="Ver detalle en pantalla completa"
+                      >
+                        <MagnifyingGlassPlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    )}
                     {isAdmin && isCardActive && (
                       <div className="absolute top-5 right-5 flex gap-2 z-40">
                         {slot.item.status === 'pending' && (
@@ -633,7 +678,7 @@ export default function VhsCylinderCarousel({
       </div>
 
       {/* Bottom Linear Tape HUD */}
-      <div className="w-full max-w-2xl px-6 sm:px-10 mx-auto mt-6 flex flex-col gap-2 z-20">
+      <div className="w-full max-w-2xl 2xl:max-w-4xl px-4 sm:px-10 mx-auto mt-6 flex flex-col gap-2 z-20">
         <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.7)]"
@@ -641,7 +686,7 @@ export default function VhsCylinderCarousel({
             transition={{ duration: 0.3 }}
           />
         </div>
-        <div className="flex justify-between items-center text-[8px] sm:text-[10px] font-mono text-white/40 uppercase tracking-tighter">
+        <div className="flex justify-between items-center text-[8px] sm:text-[10px] 2xl:text-xs font-mono text-white/40 uppercase tracking-tighter">
           <span>0:00:00:00</span>
           <span className="text-purple-400 font-bold tracking-widest">
             CYLINDER_TAPE_T0{(carouselIndex + 1).toString().padStart(2, '0')}
@@ -665,6 +710,37 @@ export default function VhsCylinderCarousel({
           ))}
         </div>
       </div>
+
+      {/* Detail / Full View Modal (PhotoDialog) */}
+      <AnimatePresence>
+        {viewingItem && (
+          <PhotoDialog
+            isOpen={!!viewingItem}
+            setIsOpen={(open) => {
+              if (!open) setViewingItem(null);
+            }}
+            isEditing={false}
+            setIsEditMode={(_edit) => { }}
+            img={viewingItem.img}
+            title={viewingItem.title}
+            setTitle={(_t) => { }}
+            description={viewingItem.description}
+            setDescription={(_d) => { }}
+            location={viewingItem.metadata?.location || ''}
+            setLocation={(_loc) => { }}
+            category={viewingItem.category || 'General'}
+            setCategory={(_c) => { }}
+            peopleTags={viewingItem.peopleTags || []}
+            setPeopleTags={(_tags) => { }}
+            isFeatured={viewingItem.isFeatured || false}
+            setIsFeatured={(_f) => { }}
+            metadata={viewingItem.metadata}
+            handleUpdate={() => { }}
+            orientation={(viewingItem.orientation as 'horizontal' | 'vertical') || 'horizontal'}
+            resourceType={viewingItem.resourceType}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Edit Modal (PhotoDialog) */}
       <AnimatePresence>
@@ -691,7 +767,7 @@ export default function VhsCylinderCarousel({
             setIsFeatured={(f) => setEditingItem(prev => prev ? { ...prev, isFeatured: f } : null)}
             metadata={editingItem.metadata}
             handleUpdate={handleDialogUpdate}
-            orientation='horizontal'
+            orientation={(editingItem.orientation as 'horizontal' | 'vertical') || 'horizontal'}
             resourceType={editingItem.resourceType}
           />
         )}

@@ -168,14 +168,14 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
               <motion.div layout className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 sm:mt-16 lg:grid-cols-4 auto-rows-[120px] sm:auto-rows-[150px] grid-flow-dense">
                 <AnimatePresence mode="popLayout">
                   {filteredItems.map((photo) => (
-                    <BentoCard key={photo._id} id={photo._id} title={photo.title} description={photo.description} category={photo.category} img={photo.img} resourceType={photo.resourceType} metadata={photo.metadata} peopleTags={photo.peopleTags} status={photo.status} isPendingDeletion={pendingDeletions.has(photo._id)} onToggleDelete={handleToggleDelete} onUpdate={handleItemUpdate} isFeatured={photo.isFeatured} gridSpan={photo.gridSpan} />
+                    <BentoCard key={photo._id} id={photo._id} title={photo.title} description={photo.description} category={photo.category} img={photo.img} orientation={(photo.orientation as 'horizontal' | 'vertical')} resourceType={photo.resourceType} metadata={photo.metadata} peopleTags={photo.peopleTags} status={photo.status} isPendingDeletion={pendingDeletions.has(photo._id)} onToggleDelete={handleToggleDelete} onUpdate={handleItemUpdate} isFeatured={photo.isFeatured} gridSpan={photo.gridSpan} />
                   ))}
                 </AnimatePresence>
               </motion.div>
             </LayoutGroup>
           </SortableContext>
           <DragOverlay adjustScale={false} dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.5' } } }) }}>
-            {activeId ? (<div className="shadow-2xl">{(() => { const activeItem = items.find(item => item._id === activeId); if (!activeItem) return null; return (<BentoCard id={activeItem._id} title={activeItem.title} description={activeItem.description} category={activeItem.category} img={activeItem.img} resourceType={activeItem.resourceType} peopleTags={activeItem.peopleTags} status={activeItem.status} isFeatured={activeItem.isFeatured} gridSpan={activeItem.gridSpan} onUpdate={handleItemUpdate} />); })()}</div>) : null}
+            {activeId ? (<div className="shadow-2xl">{(() => { const activeItem = items.find(item => item._id === activeId); if (!activeItem) return null; return (<BentoCard id={activeItem._id} title={activeItem.title} description={activeItem.description} category={activeItem.category} img={activeItem.img} orientation={(activeItem.orientation as 'horizontal' | 'vertical')} resourceType={activeItem.resourceType} peopleTags={activeItem.peopleTags} status={activeItem.status} isFeatured={activeItem.isFeatured} gridSpan={activeItem.gridSpan} onUpdate={handleItemUpdate} />); })()}</div>) : null}
           </DragOverlay>
         </DndContext>
       </div>

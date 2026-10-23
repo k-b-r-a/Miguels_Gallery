@@ -13,7 +13,7 @@ const AboutMe = forwardRef<HTMLDivElement, { profileImg: string }>(({ profileImg
   const rotate = useTransform(scrollYProgress, [0, 1], [-2, 2]);
 
   const biography = [
-    'Soy Miguel Sedano, también conocido como miguel_elfotografo. Soy fotógrafo y creador visual apasionado por capturar la esencia de los momentos cotidianos. A través de mi lente busco mostrar la belleza en lo simple, las emociones reales y los instantes que muchas veces pasan desapercibidos.',
+    'Soy Miguel Sedano, también conocido como miguel_elhumano. Soy fotógrafo y creador visual apasionado por capturar la esencia de los momentos cotidianos. A través de mi lente busco mostrar la belleza en lo simple, las emociones reales y los instantes que muchas veces pasan desapercibidos.',
     'Mi trabajo nace de la curiosidad por lo que me rodea: las formas de la ciudad, los reflejos en la lluvia, los gestos espontáneos y los colores que solo aparecen por un instante. No busco solo tomar fotos, sino detener el tiempo en pequeños fragmentos que cuentan historias.',
     'En esta galería encontrarás parte de mi manera de ver el mundo: imperfecto, cambiante y lleno de detalles que merecen ser observados con calma, donde la luz, la textura y la emoción son los verdaderos protagonistas.'
   ];

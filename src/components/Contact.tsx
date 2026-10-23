@@ -84,13 +84,13 @@ const Contact = forwardRef<HTMLDivElement>((_props, ref) => {
                   </div>
                 </a>
 
-                <a href="https://instagram.com/miguel_elfotografo" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3.5 sm:gap-4 group/item min-w-0 w-full">
+                <a href="https://instagram.com/miguel_elhumano" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3.5 sm:gap-4 group/item min-w-0 w-full">
                   <div className="p-2.5 sm:p-3 rounded-2xl bg-pink-500/10 text-pink-500 group-hover/item:bg-pink-500 group-hover/item:text-white transition-all duration-300 shrink-0">
                     <ChatBubbleLeftRightIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1" style={{ color: 'var(--text-main)' }}>Instagram</p>
-                    <p className="text-sm min-[380px]:text-base sm:text-lg lg:text-xl font-bold font-SpaceGrotesk group-hover/item:text-pink-500 transition-colors break-all sm:break-normal" style={{ color: 'var(--text-main)' }}>@miguel_elfotografo</p>
+                    <p className="text-sm min-[380px]:text-base sm:text-lg lg:text-xl font-bold font-SpaceGrotesk group-hover/item:text-pink-500 transition-colors break-all sm:break-normal" style={{ color: 'var(--text-main)' }}>@miguel_elhumano</p>
                   </div>
                 </a>
               </div>

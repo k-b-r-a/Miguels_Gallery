@@ -3,7 +3,8 @@ import indexHTML from './index.html';
 import path from 'path';
 
 // Start Tailwind CLI in watch mode
-const tailwindProcess = Bun.spawn(['./node_modules/.bin/tailwindcss', '-i', './src/index.css', '-o', './dist/tailwind.css', '--watch'], {
+const tailwindBin = process.platform === 'win32' ? './node_modules/.bin/tailwindcss.exe' : './node_modules/.bin/tailwindcss';
+const tailwindProcess = Bun.spawn([tailwindBin, '-i', './src/index.css', '-o', './dist/tailwind.css', '--watch'], {
   stdout: 'inherit',
   stderr: 'inherit',
 });
@@ -74,7 +75,7 @@ const server = serve({
     return new Response('Not Found', { status: 404 });
   },
   port: 3000,
-  hostname: '0.0.0.0',
+  hostname: 'localhost',
   development: true,
 });
 
