@@ -7,8 +7,9 @@
   "module": "src/index.tsx",
   "scripts": {
     "dev:frontend": "bun --hot run src/index.tsx",
+    "dev:css": "tailwindcss -i ./src/index.css -o ./dist/tailwind.css --watch",
     "dev:backend": "node --watch backend/index.mjs",
-    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"magenta,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently -n \"BACKEND,CSS,FRONTEND\" -c \"magenta,cyan,green\" \"npm run dev:backend\" \"npm run dev:css\" \"npm run dev:frontend\"",
     "start": "NODE_ENV=production bun src/index.tsx",
     "build": "bun run build.ts"
   },

@@ -54,7 +54,7 @@ const server = serve({
       const result = await Bun.build({
         entrypoints: [path.join(import.meta.dir, 'frontend.tsx')],
         target: 'browser',
-        minify: false,
+        minify: false
       });
       if (result.success) {
         return new Response(result.outputs[0], {
@@ -67,11 +67,23 @@ const server = serve({
 
     // Serve the generated Tailwind CSS
     if (pathname === '/index.css') {
-      const cssFile = Bun.file(distTailwindPath);
+      const cssFile = Bun.file(path.join(process.cwd(), 'dist/tailwind.css'));
       if (await cssFile.exists()) {
         return new Response(cssFile, {
           headers: { 'Content-Type': 'text/css' }
         });
+      }
+      const distDir = path.join(process.cwd(), 'dist');
+      if (existsSync(distDir)) {
+        const distCss = [...new Bun.Glob('chunk-*.css').scanSync(distDir)];
+        if (distCss.length > 0) {
+          const fallbackCss = Bun.file(path.join(distDir, distCss[0]));
+          if (await fallbackCss.exists()) {
+            return new Response(fallbackCss, {
+              headers: { 'Content-Type': 'text/css' }
+            });
+          }
+        }
       }
       Bun.spawnSync([tailwindBin, '-i', './src/index.css', '-o', './dist/tailwind.css']);
       return new Response(Bun.file(distTailwindPath), {
@@ -93,6 +105,7 @@ const server = serve({
         '.png': 'image/png',
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
+        '.pdf': 'application/pdf'
       };
       return new Response(file, {
         headers: { 'Content-Type': mimeTypes[extension] || 'application/octet-stream' }
@@ -101,16 +114,16 @@ const server = serve({
 
     // SPA Fallback
     if (!pathname.startsWith('/api/')) {
-        return new Response(indexHTML, {
-            headers: { 'Content-Type': 'text/html' },
-        });
+      return new Response(indexHTML, {
+        headers: { 'Content-Type': 'text/html' }
+      });
     }
 
     return new Response('Not Found', { status: 404 });
   },
   port: 3000,
-  hostname: '0.0.0.0',
-  development: true,
+  hostname: 'localhost',
+  development: true
 });
 
 console.log(`🚀 Dev server running at ${server.url}`);

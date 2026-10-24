@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getOptimizedUrl } from '../utils/cloudinaryHelper'
 import { useAuth } from '../utils/AuthContext'
-import { TrashIcon, PencilSquareIcon, InformationCircleIcon, MapPinIcon, XMarkIcon, ArrowsPointingOutIcon, ArrowPathIcon, PlusIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, PencilSquareIcon, InformationCircleIcon, MapPinIcon, XMarkIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ArrowPathIcon, PlusIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { API_BASE_URL } from '../utils/apiConfig'
@@ -29,6 +29,7 @@ interface CardProps {
   description: string;
   category?: string;
   img: string;
+  orientation?: 'horizontal' | 'vertical';
   resourceType?: 'image' | 'video';
   metadata?: PhotoMetadata;
   peopleTags?: PersonTag[];
@@ -40,7 +41,7 @@ interface CardProps {
   status?: 'published' | 'pending';
 }
 
-function VideoPlayer({ src, className }: { src: string, className?: string }) {
+function VideoPlayer({ src, className, fitMode = 'contain' }: { src: string, className?: string, fitMode?: 'contain' | 'cover' }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -95,14 +96,15 @@ function VideoPlayer({ src, className }: { src: string, className?: string }) {
 
   return (
     <div 
-      className={`relative group/video overflow-hidden bg-black flex items-center justify-center ${className}`}
+      className={`relative group/video overflow-hidden bg-zinc-950 flex items-center justify-center ${className}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
     >
+      <div className="absolute inset-0 bg-radial from-zinc-800/60 to-black/90 pointer-events-none" aria-hidden="true" />
       <video 
         ref={videoRef}
         src={src} 
-        className="w-full h-full object-contain pointer-events-none" 
+        className={`w-full h-full relative z-10 pointer-events-none transition-all duration-300 ${fitMode === 'cover' ? 'object-cover' : 'object-contain'}`} 
         autoPlay 
         loop
         muted={isMuted}
@@ -110,7 +112,7 @@ function VideoPlayer({ src, className }: { src: string, className?: string }) {
         onTimeUpdate={handleTimeUpdate}
         onError={() => console.error(`❌ Error al cargar video principal: ${src}`)}
       />
-      <div className="absolute inset-0 z-0 cursor-pointer" onClick={togglePlay} />
+      <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />
       <AnimatePresence>
         {!isPlaying && (
           <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
@@ -140,7 +142,7 @@ function VideoPlayer({ src, className }: { src: string, className?: string }) {
   );
 }
 
-export function BentoCard({ id, title: initialTitle, description: initialDescription, category: initialCategory, img, resourceType = 'image', metadata, peopleTags: initialPeopleTags, isPendingDeletion, onToggleDelete, onUpdate, isFeatured: initialIsFeatured, gridSpan: initialGridSpan, status: initialStatus }: CardProps) {
+export function BentoCard({ id, title: initialTitle, description: initialDescription, category: initialCategory, img, orientation, resourceType = 'image', metadata, peopleTags: initialPeopleTags, isPendingDeletion, onToggleDelete, onUpdate, isFeatured: initialIsFeatured, gridSpan: initialGridSpan, status: initialStatus }: CardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditMode] = useState(false);
   const [title, setTitle] = useState(initialTitle);
@@ -247,7 +249,7 @@ export function BentoCard({ id, title: initialTitle, description: initialDescrip
             <motion.img 
               className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${isPendingDeletion || status === 'pending' ? 'grayscale opacity-50' : ''}`} 
               src={thumbUrl} 
-              alt={title} 
+              alt={title || 'Fotografía de Miguel Sedano'} 
               onClick={() => !isPendingDeletion && setIsOpen(true)} 
               onError={() => console.error(`❌ Error al cargar miniatura de imagen: ${thumbUrl}`)}
             />
@@ -287,7 +289,7 @@ export function BentoCard({ id, title: initialTitle, description: initialDescrip
         </div>
         <AnimatePresence>
           {isOpen && (
-            <PhotoDialog isOpen={isOpen} setIsOpen={setIsOpen} isEditing={isEditing} setIsEditMode={setIsEditMode} img={img} title={title} setTitle={setTitle} description={description} setDescription={setDescription} location={location} setLocation={setLocation} category={category} setCategory={setCategory} peopleTags={peopleTags} setPeopleTags={setPeopleTags} isFeatured={isFeatured} setIsFeatured={setIsFeatured} metadata={metadata} handleUpdate={handleUpdate} orientation={gridSpan.rows > gridSpan.cols ? 'vertical' : 'horizontal'} resourceType={resourceType} />
+            <PhotoDialog isOpen={isOpen} setIsOpen={setIsOpen} isEditing={isEditing} setIsEditMode={setIsEditMode} img={img} title={title} setTitle={setTitle} description={description} setDescription={setDescription} location={location} setLocation={setLocation} category={category} setCategory={setCategory} peopleTags={peopleTags} setPeopleTags={setPeopleTags} isFeatured={isFeatured} setIsFeatured={setIsFeatured} metadata={metadata} handleUpdate={handleUpdate} orientation={orientation || (gridSpan.rows > gridSpan.cols ? 'vertical' : 'horizontal')} resourceType={resourceType} />
           )}
         </AnimatePresence>
       </div>
@@ -317,31 +319,198 @@ interface PhotoDialogProps {
   setIsFeatured?: (featured: boolean) => void;
   metadata?: PhotoMetadata;
   handleUpdate: (featuredStatus?: boolean, newSpan?: { cols: number, rows: number }, updatedPeopleTags?: PersonTag[], updatedStatus?: 'published' | 'pending') => void;
-  orientation: 'horizontal' | 'vertical';
+  orientation?: 'horizontal' | 'vertical';
   resourceType?: 'image' | 'video';
 }
 
-export function PhotoDialog({ isOpen, setIsOpen, isEditing, setIsEditMode, img, title, setTitle, description, setDescription, location, setLocation, category, setCategory, peopleTags, setPeopleTags, isFeatured, setIsFeatured, metadata, handleUpdate, orientation, resourceType = 'image' }: PhotoDialogProps) {
+export function PhotoDialog({
+  isOpen,
+  setIsOpen,
+  isEditing,
+  setIsEditMode,
+  img,
+  title,
+  setTitle,
+  description,
+  setDescription,
+  location,
+  setLocation,
+  category,
+  setCategory,
+  peopleTags,
+  setPeopleTags,
+  isFeatured,
+  setIsFeatured,
+  metadata,
+  handleUpdate,
+  orientation = 'horizontal',
+  resourceType = 'image'
+}: PhotoDialogProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [fitMode, setFitMode] = useState<'contain' | 'cover'>('contain');
+  const [detectedOrientation, setDetectedOrientation] = useState<'horizontal' | 'vertical'>(orientation);
   const [newTagName, setNewTagName] = useState('');
   const [newTagHref, setNewTagHref] = useState('');
   const { isAdmin } = useAuth();
-  const addTag = () => { if (newTagName && newTagHref) { setPeopleTags([...peopleTags, { name: newTagName, href: newTagHref }]); setNewTagName(''); setNewTagHref(''); } };
-  const removeTag = (index: number) => { setPeopleTags(peopleTags.filter((_, i) => i !== index)); };
+
+  const effectiveOrientation = detectedOrientation || orientation;
+
+  useEffect(() => {
+    setDetectedOrientation(orientation);
+    setFitMode('contain');
+    setIsDetailsOpen(false);
+  }, [img, orientation]);
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalHeight > naturalWidth * 1.05) {
+      setDetectedOrientation('vertical');
+    } else {
+      setDetectedOrientation('horizontal');
+    }
+  };
+
+  const addTag = () => {
+    if (newTagName && newTagHref) {
+      setPeopleTags([...peopleTags, { name: newTagName, href: newTagHref }]);
+      setNewTagName('');
+      setNewTagHref('');
+    }
+  };
+  const removeTag = (index: number) => {
+    setPeopleTags(peopleTags.filter((_, i) => i !== index));
+  };
 
   return (
     <Dialog static open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/95 backdrop-blur-md" />
       <div className="fixed inset-0 flex items-center justify-center p-0 md:p-6">
-        <DialogPanel as={motion.div} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="max-w-7xl w-full h-full md:h-[90vh] rounded-0 md:rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" style={{ backgroundColor: 'var(--bg-app)' }}>
+        <DialogPanel
+          as={motion.div}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="max-w-7xl w-full h-full md:h-[90vh] rounded-0 md:rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col md:flex-row"
+          style={{ backgroundColor: 'var(--bg-app)' }}
+        >
           <div className="flex flex-col md:flex-row w-full h-full overflow-hidden relative">
-            <div className={`w-full md:w-2/3 lg:w-3/4 bg-black flex items-center justify-center relative overflow-hidden ${orientation === 'vertical' ? 'h-full' : 'h-[45vh] sm:h-[55vh] md:h-full'}`}>
-              {resourceType === 'video' ? <VideoPlayer src={img} className="w-full h-full" /> : <img src={img} alt={title} className="w-full h-full object-contain cursor-pointer" onClick={() => setIsOpen(false)} onError={() => console.error(`❌ Error al cargar imagen completa: ${img}`)} />}
-              {orientation === 'vertical' && (<motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute bottom-6 right-6 md:hidden z-20"><button onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }} className="p-3 bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl text-white flex items-center gap-2 shadow-2xl active:scale-95 transition-transform"><InformationCircleIcon className="w-6 h-6 text-purple-400" /><span className="text-[10px] font-bold uppercase tracking-widest pr-1">Info</span></button></motion.div>)}
+            <div
+              className={`w-full ${
+                effectiveOrientation === 'vertical'
+                  ? 'md:w-3/5 lg:w-7/12 h-full'
+                  : 'md:w-2/3 lg:w-3/4 h-[50vh] sm:h-[60vh] md:h-full'
+              } bg-zinc-950 flex items-center justify-center relative overflow-hidden select-none`}
+            >
+              {/* Dynamic Ambient Blurred Backdrop: Eliminates black borders around low-res / letterboxed media */}
+              {resourceType === 'image' && (
+                <div
+                  className="absolute inset-0 bg-cover bg-center filter blur-3xl scale-125 opacity-35 brightness-75 select-none pointer-events-none transition-all duration-700"
+                  style={{ backgroundImage: `url('${img}')` }}
+                  aria-hidden="true"
+                />
+              )}
+              {/* Subtle vignette layer for clean edge contrast */}
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-xs pointer-events-none" aria-hidden="true" />
+
+              {/* Media Element */}
+              {resourceType === 'video' ? (
+                <VideoPlayer src={img} className="w-full h-full relative z-10" fitMode={fitMode} />
+              ) : (
+                <img
+                  src={img}
+                  alt={title || 'Fotografía de Miguel Sedano'}
+                  onLoad={handleImageLoad}
+                  className={`w-full h-full relative z-10 select-none transition-all duration-300 ${
+                    fitMode === 'cover' ? 'object-cover cursor-zoom-out' : 'object-contain cursor-zoom-in'
+                  }`}
+                  onClick={() => setFitMode(prev => prev === 'contain' ? 'cover' : 'contain')}
+                  title={fitMode === 'contain' ? 'Haz clic para adaptar a la caja' : 'Haz clic para ver completa'}
+                  onError={() => console.error(`❌ Error al cargar imagen completa: ${img}`)}
+                />
+              )}
+
+              {/* Fit Mode Toggle Control Button */}
+              <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFitMode(prev => prev === 'contain' ? 'cover' : 'contain');
+                  }}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-black/60 hover:bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl text-white text-xs font-semibold shadow-2xl transition-all active:scale-95 cursor-pointer group"
+                  title={fitMode === 'contain' ? 'Adaptar y rellenar caja' : 'Ajustar para ver completa'}
+                >
+                  {fitMode === 'contain' ? (
+                    <>
+                      <ArrowsPointingOutIcon className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider">Adaptar a caja</span>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowsPointingInIcon className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider">Ver completa</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Mobile Info Button for vertical layout */}
+              {effectiveOrientation === 'vertical' && (
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute bottom-4 right-4 md:hidden z-20">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDetailsOpen(true);
+                    }}
+                    className="p-3 bg-black/60 hover:bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl text-white flex items-center gap-2 shadow-2xl active:scale-95 transition-transform cursor-pointer"
+                  >
+                    <InformationCircleIcon className="w-6 h-6 text-purple-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest pr-1">Info</span>
+                  </button>
+                </motion.div>
+              )}
             </div>
-            <AnimatePresence>{orientation === 'vertical' && isDetailsOpen && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsDetailsOpen(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden" />)}</AnimatePresence>
-            <motion.div initial={false} animate={{ y: orientation === 'vertical' && typeof window !== 'undefined' && window.innerWidth < 768 ? (isDetailsOpen ? 0 : '100%') : 0 }} transition={{ type: 'spring', damping: 30, stiffness: 300 }} className={`${orientation === 'vertical' ? 'fixed md:relative' : 'relative'} bottom-0 left-0 right-0 z-40 md:z-auto w-full md:w-1/3 lg:w-1/4 ${orientation === 'vertical' ? 'h-[75vh]' : 'grow'} md:h-full p-6 sm:p-8 lg:p-10 flex flex-col ${orientation === 'vertical' ? 'rounded-t-[2.5rem]' : ''} md:rounded-none border-t md:border-t-0 md:border-l shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-none ${orientation === 'vertical' && !isDetailsOpen ? 'translate-y-full md:translate-y-0' : 'translate-y-0'}`} style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border)' }}>
-              {orientation === 'vertical' && (<div className="w-12 h-1.5 bg-gray-500/30 rounded-full mx-auto mb-6 md:hidden cursor-pointer" onClick={() => setIsDetailsOpen(false)} />)}
+
+            {/* Backdrop for details on mobile in vertical mode */}
+            <AnimatePresence>
+              {effectiveOrientation === 'vertical' && isDetailsOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsDetailsOpen(false)}
+                  className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden"
+                />
+              )}
+            </AnimatePresence>
+
+            {/* Info / Edit Sidebar Panel */}
+            <motion.div
+              initial={false}
+              animate={{
+                y: effectiveOrientation === 'vertical' && typeof window !== 'undefined' && window.innerWidth < 768
+                  ? (isDetailsOpen ? 0 : '100%')
+                  : 0
+              }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className={`${
+                effectiveOrientation === 'vertical' ? 'fixed md:relative' : 'relative'
+              } bottom-0 left-0 right-0 z-40 md:z-auto w-full ${
+                effectiveOrientation === 'vertical' ? 'md:w-2/5 lg:w-5/12 h-[75vh]' : 'md:w-1/3 lg:w-1/4 grow'
+              } md:h-full p-6 sm:p-8 lg:p-10 flex flex-col ${
+                effectiveOrientation === 'vertical' ? 'rounded-t-[2.5rem]' : ''
+              } md:rounded-none border-t md:border-t-0 md:border-l shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-none ${
+                effectiveOrientation === 'vertical' && !isDetailsOpen ? 'translate-y-full md:translate-y-0' : 'translate-y-0'
+              }`}
+              style={{ backgroundColor: 'var(--bg-app)', borderColor: 'var(--border)' }}
+            >
+              {effectiveOrientation === 'vertical' && (
+                <div
+                  className="w-12 h-1.5 bg-gray-500/30 rounded-full mx-auto mb-6 md:hidden cursor-pointer"
+                  onClick={() => setIsDetailsOpen(false)}
+                />
+              )}
               {isEditing ? (
                 <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2">
                   <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-3 rounded-xl bg-black/5 border outline-none font-bold" style={{ color: 'var(--text-main)', borderColor: 'var(--border)' }} />
