@@ -247,7 +247,7 @@ export function BentoCard({ id, title: initialTitle, description: initialDescrip
             <motion.img 
               className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${isPendingDeletion || status === 'pending' ? 'grayscale opacity-50' : ''}`} 
               src={thumbUrl} 
-              alt={title} 
+              alt={title || 'Fotografía de Miguel Sedano'} 
               onClick={() => !isPendingDeletion && setIsOpen(true)} 
               onError={() => console.error(`❌ Error al cargar miniatura de imagen: ${thumbUrl}`)}
             />
@@ -336,7 +336,7 @@ export function PhotoDialog({ isOpen, setIsOpen, isEditing, setIsEditMode, img, 
         <DialogPanel as={motion.div} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="max-w-7xl w-full h-full md:h-[90vh] rounded-0 md:rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" style={{ backgroundColor: 'var(--bg-app)' }}>
           <div className="flex flex-col md:flex-row w-full h-full overflow-hidden relative">
             <div className={`w-full md:w-2/3 lg:w-3/4 bg-black flex items-center justify-center relative overflow-hidden ${orientation === 'vertical' ? 'h-full' : 'h-[45vh] sm:h-[55vh] md:h-full'}`}>
-              {resourceType === 'video' ? <VideoPlayer src={img} className="w-full h-full" /> : <img src={img} alt={title} className="w-full h-full object-contain cursor-pointer" onClick={() => setIsOpen(false)} onError={() => console.error(`❌ Error al cargar imagen completa: ${img}`)} />}
+              {resourceType === 'video' ? <VideoPlayer src={img} className="w-full h-full" /> : <img src={img} alt={title || 'Fotografía de Miguel Sedano'} className="w-full h-full object-contain cursor-pointer" onClick={() => setIsOpen(false)} onError={() => console.error(`❌ Error al cargar imagen completa: ${img}`)} />}
               {orientation === 'vertical' && (<motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute bottom-6 right-6 md:hidden z-20"><button onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }} className="p-3 bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl text-white flex items-center gap-2 shadow-2xl active:scale-95 transition-transform"><InformationCircleIcon className="w-6 h-6 text-purple-400" /><span className="text-[10px] font-bold uppercase tracking-widest pr-1">Info</span></button></motion.div>)}
             </div>
             <AnimatePresence>{orientation === 'vertical' && isDetailsOpen && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsDetailsOpen(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden" />)}</AnimatePresence>

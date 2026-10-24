@@ -65,7 +65,7 @@ app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 // 6. DB State
-let dbClient, photosCollection, settingsCollection;
+let dbClient, photosCollection, settingsCollection, contactsCollection;
 
 // 7. Initialization Logic
 const initSettings = async () => {
@@ -332,9 +332,52 @@ app.post(
 
       const results = [];
       for (const file of req.files) {
+        const isVideo = file.mimetype.startsWith('video');
+        let details = null;
+        try {
+          details = await cloudinary.api.resource(file.filename, {
+            image_metadata: true,
+            resource_type: isVideo ? 'video' : 'image',
+          });
+        } catch (e) {
+          console.error(pc.yellow(`⚠️ Cloudinary resource details warning for ${file.filename}: ${e.message}`));
+        }
+
+        const meta = details?.image_metadata || {};
+        const width = details?.width || 0;
+        const height = details?.height || 0;
+        const isHorizontal = width && height ? width > height : true;
+        const orientation = isHorizontal ? 'horizontal' : 'vertical';
+        const gridSpan = isHorizontal ? { cols: 1, rows: 1 } : { cols: 1, rows: 2 };
+
+        const photoMetadata = {
+          iso: meta.ISO || details?.exif?.ISO || '',
+          shutterSpeed:
+            meta.ShutterSpeed ||
+            details?.exif?.ExposureTime ||
+            '',
+          aperture:
+            meta.Aperture ||
+            meta.FNumber ||
+            details?.exif?.FNumber ||
+            details?.exif?.ApertureValue ||
+            '',
+          focalLength:
+            meta.FocalLength ||
+            details?.exif?.FocalLength ||
+            '',
+          camera:
+            meta.Model || details?.exif?.Model || '',
+          location:
+            location ||
+            meta.Location ||
+            details?.exif?.Location ||
+            'Unknown',
+        };
+
         const photo = {
           cloudinaryId: file.filename,
-          resourceType: file.mimetype.startsWith('video') ? 'video' : 'image',
+          resourceType: isVideo ? 'video' : 'image',
           status: 'published',
           title:
             req.files.length === 1
@@ -343,13 +386,13 @@ app.post(
           description: description || '',
           category: category || 'General',
           img: file.path,
-          orientation: 'horizontal',
+          orientation: orientation,
           isFeatured: isFeatured === 'true' || isFeatured === true,
-          gridSpan: { cols: 1, rows: 2 },
+          gridSpan: gridSpan,
           peopleTags: parsedPeopleTags,
           createdAt: new Date(),
           position: nextPos++,
-          metadata: { location: location || 'Unknown' },
+          metadata: photoMetadata,
         };
         const result = await photosCollection.insertOne(photo);
         results.push({ ...photo, _id: result.insertedId });
@@ -360,6 +403,61 @@ app.post(
     }
   },
 );
+
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, projectType, message } = req.body;
+    if (!name || !email || !message) {
+      return res
+        .status(400)
+        .json({ error: 'Nombre, correo electrónico y mensaje son obligatorios' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ error: 'Formato de correo electrónico inválido' });
+    }
+
+    const validProjectTypes = [
+      'Sesión de Retrato',
+      'Evento',
+      'Producto / Marca',
+      'Colaboración',
+      'Otro',
+    ];
+    const finalProjectType = validProjectTypes.includes(projectType)
+      ? projectType
+      : 'Otro';
+
+    const inquiry = {
+      name: String(name).trim(),
+      email: String(email).trim().toLowerCase(),
+      projectType: finalProjectType,
+      message: String(message).trim(),
+      createdAt: new Date(),
+    };
+
+    if (contactsCollection) {
+      const result = await contactsCollection.insertOne(inquiry);
+      return res.status(201).json({
+        success: true,
+        message: 'Mensaje de contacto recibido con éxito',
+        id: result.insertedId,
+      });
+    }
+
+    console.log(
+      pc.yellow('⚠️ MongoDB contacts collection not ready, inquiry:'),
+      inquiry,
+    );
+    res.status(201).json({ success: true, message: 'Mensaje recibido' });
+  } catch (err) {
+    console.error(pc.red('❌ Contact submission error:'), err.message);
+    res.status(500).json({ error: 'Error interno al procesar el mensaje' });
+  }
+});
 
 app.patch('/api/photos/reorder', authenticate, async (req, res) => {
   try {
@@ -526,6 +624,7 @@ async function startServer() {
     const db = dbClient.db('miguels_gallery_db');
     photosCollection = db.collection('photos');
     settingsCollection = db.collection('settings');
+    contactsCollection = db.collection('contacts');
     console.log(pc.green('✅ MongoDB Connected'));
     await initSettings();
     app.listen(PORT, '0.0.0.0', () => {
