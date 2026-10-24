@@ -366,7 +366,7 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
   };
 
   return (
-    <div ref={(el) => { if (typeof ref === 'function') ref(el); else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el; (containerRef as React.RefObject<HTMLDivElement | null>).current = el; }} className="relative py-24 sm:py-32 transition-colors duration-300 backdrop-blur-[1px]" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 85%, transparent)' }}>
+    <div ref={(el) => { if (typeof ref === 'function') ref(el); else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el; (containerRef as React.RefObject<HTMLDivElement | null>).current = el; }} className="relative py-24 sm:py-32 transition-colors duration-300 backdrop-blur-[1px]" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 25%, transparent)' }}>
       <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] overflow-hidden"><div className="absolute top-1/4 left-10 text-[20vw] font-black font-Cinzel rotate-12" style={{ color: 'var(--text-main)' }}>ART</div><div className="absolute bottom-1/4 right-10 text-[20vw] font-black font-Cinzel -rotate-12" style={{ color: 'var(--text-main)' }}>LIGHT</div></motion.div>
       <div className="z-10 relative flex flex-col items-center w-full mb-12">
         {carouselItems.length > 0 && (

@@ -167,10 +167,23 @@ html {
   font-family: var(--font-space);
 }
 
-@media (prefers-reduced-motion) {
+@media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-color-root {
+    background-color: var(--bg-app) !important;
+  }
+
+  .scroll-glow-layer {
+    display: none !important;
   }
 }

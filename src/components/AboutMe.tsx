@@ -26,7 +26,7 @@ const AboutMe = forwardRef<HTMLDivElement, { profileImg: string }>(({ profileImg
         else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el;
         (containerRef as React.RefObject<HTMLDivElement | null>).current = el;
       }} 
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 70%, transparent)' }}
+      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 25%, transparent)' }}
     >
       {/* Parallax Background Blobs */}
       <motion.div style={{ y: y1 }} className="absolute top-0 -left-20 w-96 h-96 bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
