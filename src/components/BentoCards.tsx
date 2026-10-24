@@ -249,7 +249,7 @@ export function BentoCard({ id, title: initialTitle, description: initialDescrip
             <motion.img 
               className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${isPendingDeletion || status === 'pending' ? 'grayscale opacity-50' : ''}`} 
               src={thumbUrl} 
-              alt={title} 
+              alt={title || 'Fotografía de Miguel Sedano'} 
               onClick={() => !isPendingDeletion && setIsOpen(true)} 
               onError={() => console.error(`❌ Error al cargar miniatura de imagen: ${thumbUrl}`)}
             />
@@ -418,7 +418,7 @@ export function PhotoDialog({
               ) : (
                 <img
                   src={img}
-                  alt={title}
+                  alt={title || 'Fotografía de Miguel Sedano'}
                   onLoad={handleImageLoad}
                   className={`w-full h-full relative z-10 select-none transition-all duration-300 ${
                     fitMode === 'cover' ? 'object-cover cursor-zoom-out' : 'object-contain cursor-zoom-in'

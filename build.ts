@@ -156,7 +156,14 @@ const result = await build({
   ...cliConfig, // Merge in any CLI-provided options
 });
 
-// Ensure dist/tailwind.css exists for server
+// Copy static assets like CV PDF if present
+const pdfSource = path.join(process.cwd(), 'src', 'cv-miguel-sedano.pdf');
+const pdfDest = path.join(outdir, 'cv-miguel-sedano.pdf');
+if (existsSync(pdfSource)) {
+  copyFileSync(pdfSource, pdfDest);
+}
+
+// Ensure dist/tailwind.css exists for the server
 const distCss = result.outputs.find(o => o.path.endsWith('.css'));
 if (distCss) {
   copyFileSync(distCss.path, path.join(outdir, 'tailwind.css'));

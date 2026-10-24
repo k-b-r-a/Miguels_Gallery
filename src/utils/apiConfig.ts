@@ -7,11 +7,14 @@ const getBackendHost = (): string => {
   // 2. Si estamos en GitHub Pages o producción web
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    if (hostname.includes('github.io')) {
+    if (hostname.includes('github.io') || hostname.includes('onrender.com')) {
       return 'https://miguels-gallery.onrender.com';
     }
-    // Si estamos en red local / IP móvil
-    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    // Si estamos en localhost o red local / IP móvil
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || (hostname && !hostname.includes('.'))) {
+      return `http://${hostname}:4000`;
+    }
+    if (hostname) {
       return `http://${hostname}:4000`;
     }
   }
