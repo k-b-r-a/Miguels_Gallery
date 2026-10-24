@@ -14,7 +14,7 @@ const tailwindBin = path.join(
 // Start Tailwind CLI in watch mode
 const tailwindProcess = Bun.spawn(
   [
-    existsSync(tailwindBin) ? tailwindBin : 'tailwindcss',
+    existsSync(tailwindBin) ? tailwindBin : (isWindows ? './node_modules/.bin/tailwindcss.exe' : './node_modules/.bin/tailwindcss'),
     '-i',
     './src/index.css',
     '-o',
@@ -106,7 +106,7 @@ const server = serve({
     return new Response('Not Found', { status: 404 });
   },
   port: 3000,
-  hostname: '0.0.0.0',
+  hostname: 'localhost',
   development: true
 });
 
