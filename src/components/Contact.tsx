@@ -119,7 +119,7 @@ const Contact = forwardRef<HTMLDivElement>((_props, ref) => {
         else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el;
         (containerRef as React.RefObject<HTMLDivElement | null>).current = el;
       }}
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 70%, transparent)' }}
+      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 25%, transparent)' }}
     >
       {/* Background Parallax Lighting */}
       <motion.div style={{ y: y1 }} className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full blur-[140px] pointer-events-none" />

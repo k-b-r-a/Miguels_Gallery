@@ -20,7 +20,7 @@ const AboutMeTop = forwardRef<HTMLDivElement, { profileImg: string }>(({ profile
         (containerRef as React.RefObject<HTMLDivElement | null>).current = el;
       }} 
       className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden px-6 backdrop-blur-[2px]"
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 60%, transparent)' }}
+      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-app) 25%, transparent)' }}
     >
       {/* Background Decorative Text with Parallax */}
       <motion.div

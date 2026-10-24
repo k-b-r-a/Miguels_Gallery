@@ -7,10 +7,10 @@ import AboutMeTop from './components/AboutMeTop';
 import Contact from './components/Contact';
 import SocialNetworks from './components/SocialNetworks';
 import CustomCursor from './components/CustomCursor';
-import { ThemeProvider } from './utils/ThemeContext';
+import { ThemeProvider, useTheme } from './utils/ThemeContext';
 import { AuthProvider, useAuth } from './utils/AuthContext';
 import { API_BASE_URL } from './utils/apiConfig';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 import { Cog6ToothIcon, PhotoIcon, VideoCameraIcon, UserCircleIcon, XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface GlobalSettings {
@@ -211,15 +211,70 @@ function AdminSettingsPanel({ settings, onUpdate }: { settings: GlobalSettings, 
   );
 }
 
+type ThemeName = 'light' | 'dark' | 'morado';
+
+const DEFAULT_SCROLL_CHECKPOINTS: [number, number, number, number, number] = [0, 0.06, 0.75, 0.92, 1];
+
+const SCROLL_COLOR_PALETTES: Record<ThemeName, [string, string, string, string, string]> = {
+  dark: [
+    '#0a0a0a',
+    '#12091c',
+    '#09101d',
+    '#140b16',
+    '#0a0a0a'
+  ],
+  morado: [
+    '#0f011a',
+    '#1e0636',
+    '#120324',
+    '#250842',
+    '#0f011a'
+  ],
+  light: [
+    '#ffffff',
+    '#f5f3ff',
+    '#eef2ff',
+    '#faf5ff',
+    '#ffffff'
+  ]
+};
+
+const SCROLL_GLOW_PALETTES: Record<ThemeName, [string, string, string, string, string]> = {
+  dark: [
+    'rgba(147, 51, 234, 0.12)',
+    'rgba(217, 70, 239, 0.10)',
+    'rgba(59, 130, 246, 0.10)',
+    'rgba(168, 85, 247, 0.12)',
+    'rgba(147, 51, 234, 0.08)'
+  ],
+  morado: [
+    'rgba(168, 85, 247, 0.15)',
+    'rgba(236, 72, 153, 0.12)',
+    'rgba(139, 92, 246, 0.15)',
+    'rgba(192, 132, 252, 0.15)',
+    'rgba(168, 85, 247, 0.10)'
+  ],
+  light: [
+    'rgba(147, 51, 234, 0.06)',
+    'rgba(99, 102, 241, 0.06)',
+    'rgba(59, 130, 246, 0.06)',
+    'rgba(168, 85, 247, 0.06)',
+    'rgba(147, 51, 234, 0.04)'
+  ]
+};
+
 function MainContent() {
-  const aboutTopRef = useRef<HTMLDivElement>(null)
-  const aboutRef = useRef<HTMLDivElement>(null)
-  const galleryRef = useRef<HTMLDivElement>(null)
-  const contactRef = useRef<HTMLDivElement>(null)
-  const footerRef = useRef<HTMLDivElement>(null)
+  const { theme } = useTheme();
+  const shouldReduceMotion = useReducedMotion();
+  const aboutTopRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
   const { isAdmin, token } = useAuth();
   
   const [activeZone, setActiveZone] = useState<'top' | 'bottom'>('top');
+  const [checkpoints, setCheckpoints] = useState<[number, number, number, number, number]>(DEFAULT_SCROLL_CHECKPOINTS);
   const [settings, setSettings] = useState<GlobalSettings>({
     profileImgTop: '/assets/Gemini_Generated_Image_mos68wmos68wmos6.png',
     profileImgTopId: '',
@@ -232,6 +287,50 @@ function MainContent() {
     parallaxBgBottomId: '',
     parallaxTypeBottom: 'image'
   });
+
+  const { scrollYProgress } = useScroll();
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.0005
+  });
+
+  const dynamicBackgroundColor = useTransform(
+    smoothProgress,
+    checkpoints,
+    SCROLL_COLOR_PALETTES[theme]
+  );
+
+  const glowColor = useTransform(
+    smoothProgress,
+    checkpoints,
+    SCROLL_GLOW_PALETTES[theme]
+  );
+
+  useEffect(() => {
+    const updateCheckpoints = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollHeight <= 0) return;
+
+      const galleryEl = document.getElementById('gallery-section');
+      const aboutEl = document.getElementById('about-section');
+      const contactEl = document.getElementById('contact-section');
+
+      const galleryProg = galleryEl ? Math.min(Math.max(galleryEl.offsetTop / scrollHeight, 0.02), 0.15) : 0.06;
+      const aboutProg = aboutEl ? Math.min(Math.max(aboutEl.offsetTop / scrollHeight, galleryProg + 0.1), 0.88) : 0.75;
+      const contactProg = contactEl ? Math.min(Math.max(contactEl.offsetTop / scrollHeight, aboutProg + 0.04), 0.96) : 0.92;
+
+      setCheckpoints([0, galleryProg, aboutProg, contactProg, 1]);
+    };
+
+    updateCheckpoints();
+    window.addEventListener('resize', updateCheckpoints);
+    const timer = setTimeout(updateCheckpoints, 800);
+    return () => {
+      window.removeEventListener('resize', updateCheckpoints);
+      clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/settings`)
@@ -302,7 +401,26 @@ function MainContent() {
   ]
 
   return (
-    <div className="relative transition-colors duration-300" style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-main)' }}>
+    <motion.div
+      className="relative scroll-color-root"
+      style={{
+        backgroundColor: shouldReduceMotion ? 'var(--bg-app)' : dynamicBackgroundColor,
+        color: 'var(--text-main)'
+      }}
+    >
+      {/* Subtle Radial Ambient Glow Layer (GPU Mask Accelerated) */}
+      {!shouldReduceMotion && (
+        <motion.div
+          aria-hidden="true"
+          className="fixed inset-0 z-0 pointer-events-none scroll-glow-layer"
+          style={{
+            backgroundColor: glowColor,
+            maskImage: 'radial-gradient(circle at 50% 35%, black 0%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(circle at 50% 35%, black 0%, transparent 70%)'
+          }}
+        />
+      )}
+
       {/* Global Dynamic Parallax Background (Fixed & Non-Overlapping) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-20">
         <AnimatePresence mode='wait'>
@@ -373,7 +491,7 @@ function MainContent() {
 
       <SocialNetworks />
       {isAdmin && <AdminSettingsPanel settings={settings} onUpdate={updateSettings} />}
-    </div>
+    </motion.div>
   );
 }
 

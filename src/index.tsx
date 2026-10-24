@@ -1,31 +1,43 @@
 import { serve } from 'bun';
 import indexHTML from './index.html';
 import path from 'path';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 
-const isWindows = process.platform === 'win32';
-const tailwindBin = path.join(
-  process.cwd(),
-  'node_modules',
-  '.bin',
-  isWindows ? 'tailwindcss.exe' : 'tailwindcss'
-);
+const getTailwindBin = (): string => {
+  const isWin = process.platform === 'win32';
+  const candidates = isWin
+    ? [
+        path.join(process.cwd(), 'node_modules', '.bin', 'tailwindcss.exe'),
+        path.join(process.cwd(), 'node_modules', '.bin', 'tailwindcss.cmd'),
+        path.join(process.cwd(), 'node_modules', '.bin', 'tailwindcss')
+      ]
+    : [
+        path.join(process.cwd(), 'node_modules', '.bin', 'tailwindcss')
+      ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return 'tailwindcss';
+};
+
+const tailwindBin = getTailwindBin();
+const distDir = path.join(process.cwd(), 'dist');
+if (!existsSync(distDir)) {
+  mkdirSync(distDir, { recursive: true });
+}
+
+// Ensure initial Tailwind build before serving
+const distTailwindPath = path.join(distDir, 'tailwind.css');
+if (!existsSync(distTailwindPath)) {
+  Bun.spawnSync([tailwindBin, '-i', './src/index.css', '-o', './dist/tailwind.css']);
+}
 
 // Start Tailwind CLI in watch mode
-const tailwindProcess = Bun.spawn(
-  [
-    existsSync(tailwindBin) ? tailwindBin : (isWindows ? './node_modules/.bin/tailwindcss.exe' : './node_modules/.bin/tailwindcss'),
-    '-i',
-    './src/index.css',
-    '-o',
-    './dist/tailwind.css',
-    '--watch'
-  ],
-  {
-    stdout: 'inherit',
-    stderr: 'inherit'
-  }
-);
+const tailwindProcess = Bun.spawn([tailwindBin, '-i', './src/index.css', '-o', './dist/tailwind.css', '--watch'], {
+  stdout: 'inherit',
+  stderr: 'inherit',
+});
 
 const server = serve({
   async fetch(req) {
@@ -73,6 +85,10 @@ const server = serve({
           }
         }
       }
+      Bun.spawnSync([tailwindBin, '-i', './src/index.css', '-o', './dist/tailwind.css']);
+      return new Response(Bun.file(distTailwindPath), {
+        headers: { 'Content-Type': 'text/css' }
+      });
     }
 
     // Static Files
