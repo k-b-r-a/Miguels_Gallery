@@ -62,7 +62,7 @@ export default function SocialNetworks() {
               <div className="w-full md:w-2/3 h-full flex flex-col p-4 sm:p-6 lg:p-10" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-card) 30%, transparent)' }}>
                 <div className="flex-1 overflow-hidden relative rounded-4xl shadow-2xl border border-white/5 bg-black/40">
                   <iframe
-                    src="https://www.instagram.com/miguel_elfotografo/embed"
+                    src="https://www.instagram.com/miguel_elhumano/embed"
                     className="absolute inset-0 w-full h-full border-0"
                     title="Instagram Feed"
                   />
@@ -76,19 +76,19 @@ export default function SocialNetworks() {
                     Instagram
                   </h2>
                   <p className="text-lg opacity-80" style={{ color: 'var(--text-muted)' }}>
-                    @miguel_elfotografo
+                    @miguel_elhumano
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <p className="text-lg leading-relaxed" style={{ color: 'var(--text-main)' }}>
-                    Explore my daily work, stories, and behind-the-scenes on Instagram.
-                    Join our visual community!
+                    Explora mi trabajo diario, historias y el detrás de escena en Instagram.
+                    ¡Únete a nuestra comunidad visual!
                   </p>
                 </div>
 
                 <motion.a
-                  href="https://www.instagram.com/miguel_elfotografo/?hl=es"
+                  href="https://www.instagram.com/miguel_elhumano/"
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
@@ -101,7 +101,7 @@ export default function SocialNetworks() {
                   }}
                 >
                   <InstagramIcon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: 'var(--accent)' }} />
-                  <span>Follow on Instagram</span>
+                  <span>Seguir en Instagram</span>
                 </motion.a>              </div>
             </motion.div>
           </div>
