@@ -68,10 +68,10 @@ export default function VhsCylinderCarousel({
 
   // Responsive 3D dimensions
   const [dimensions, setDimensions] = useState({
-    cardWidth: 540,
-    cardHeight: 340,
-    radius: 480,
-    perspective: 1300
+    cardWidth: 520,
+    cardHeight: 325,
+    radius: 680,
+    perspective: 1500
   });
 
   // Calculate cylinder slots (repeat if < 5 to form a rich circular cylinder)
@@ -98,56 +98,57 @@ export default function VhsCylinderCarousel({
     const handleResize = () => {
       const width = window.innerWidth;
       const count = Math.max(totalSlots, 6);
+      const angleRad = (2 * Math.PI) / count;
+      const sinAngle = Math.sin(angleRad);
+      const cosAngle = Math.cos(angleRad);
+
+      // Calculates cylinder radius to guarantee clear visible gap between adjacent cards on screen
+      const computeRadius = (cardW: number, desiredGap: number) => {
+        return Math.round((desiredGap + (cardW / 2) * (1 + cosAngle)) / Math.max(0.15, sinAngle));
+      };
 
       if (width < 400) {
         // Very small mobile screens (iPhone SE, narrow screens)
-        const cardWidth = Math.min(width - 32, 280);
+        const cardWidth = Math.min(width - 32, 270);
         const cardHeight = Math.round(cardWidth * 0.62);
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(170, naturalRadius), 240));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 700 });
+        const radius = computeRadius(cardWidth, 70);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 800 });
       } else if (width < 640) {
         // Standard mobile phones
-        const cardWidth = Math.min(width - 48, 330);
+        const cardWidth = Math.min(width - 48, 310);
         const cardHeight = Math.round(cardWidth * 0.62);
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(220, naturalRadius), 300));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 850 });
+        const radius = computeRadius(cardWidth, 90);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 950 });
       } else if (width < 768) {
         // Large phones & phablets
-        const cardWidth = 380;
-        const cardHeight = 240;
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(270, naturalRadius), 360));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 950 });
+        const cardWidth = 360;
+        const cardHeight = 225;
+        const radius = computeRadius(cardWidth, 120);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1100 });
       } else if (width < 1024) {
         // Tablets / iPads
-        const cardWidth = 460;
-        const cardHeight = 285;
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(340, naturalRadius), 440));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1100 });
+        const cardWidth = 440;
+        const cardHeight = 275;
+        const radius = computeRadius(cardWidth, 160);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1300 });
       } else if (width < 1440) {
         // Standard Desktop / Laptops
-        const cardWidth = 540;
-        const cardHeight = 340;
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(420, naturalRadius), 520));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1300 });
+        const cardWidth = 520;
+        const cardHeight = 325;
+        const radius = computeRadius(cardWidth, 200);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1500 });
       } else if (width < 1920) {
         // Large desktop displays (1440p / QHD)
-        const cardWidth = 640;
-        const cardHeight = 400;
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(500, naturalRadius), 620));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1550 });
+        const cardWidth = 600;
+        const cardHeight = 375;
+        const radius = computeRadius(cardWidth, 240);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 1800 });
       } else {
         // Ultra-wide & 4K screens (1920px+)
-        const cardWidth = 740;
-        const cardHeight = 460;
-        const naturalRadius = (cardWidth / 2) / Math.tan(Math.PI / count);
-        const radius = Math.round(Math.min(Math.max(580, naturalRadius), 720));
-        setDimensions({ cardWidth, cardHeight, radius, perspective: 1800 });
+        const cardWidth = 700;
+        const cardHeight = 440;
+        const radius = computeRadius(cardWidth, 280);
+        setDimensions({ cardWidth, cardHeight, radius, perspective: 2100 });
       }
     };
 
@@ -348,6 +349,10 @@ export default function VhsCylinderCarousel({
       <div className="absolute inset-x-0 h-px bg-white/15 top-1/4 z-0 pointer-events-none" />
       <div className="absolute inset-x-0 h-px bg-white/15 bottom-1/4 z-0 pointer-events-none" />
 
+      {/* Side Vignette Fades - soften edges so peripheral cards fade away smoothly */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 md:w-44 bg-gradient-to-r from-black/85 via-black/40 to-transparent z-30 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 md:w-44 bg-gradient-to-l from-black/85 via-black/40 to-transparent z-30 pointer-events-none" />
+
       {/* Navigation Controls */}
       <div className="absolute top-1/2 left-1.5 sm:left-4 md:left-6 z-40 -translate-y-1/2">
         <button
@@ -409,13 +414,13 @@ export default function VhsCylinderCarousel({
             const isCardActive = absAngle < (angleStep / 2) || (totalSlots === 1);
             const isPending = pendingDeletions.has(slot.item._id);
 
-            // Opacity & depth shading: active card is crisp and prominent, non-focused cards are blurred for depth of field
-            const opacity = isCardActive ? 1 : absAngle < 90 ? 0.75 : 0.35;
+            // Opacity & depth shading: active card is crisp and prominent, non-focused cards are heavily blurred and dimmed so "next" content is not viewable
+            const opacity = isCardActive ? 1 : absAngle < 90 ? 0.38 : 0.12;
             const filter = isCardActive
               ? 'none'
               : absAngle < 90
-              ? 'brightness(0.8) blur(3px)'
-              : 'brightness(0.45) blur(6px)';
+              ? 'brightness(0.55) grayscale(0.7) blur(20px)'
+              : 'brightness(0.3) grayscale(0.9) blur(28px)';
 
             return (
               <div
@@ -608,9 +613,9 @@ export default function VhsCylinderCarousel({
                       </div>
                     )}
 
-                    {/* Non-Active Cassette Title Badge */}
+                    {/* Non-Active Cassette Blur Mask & Title Badge */}
                     {!isCardActive && (
-                      <div className="absolute inset-0 flex items-center justify-center z-25 pointer-events-none">
+                      <div className="absolute inset-0 flex items-center justify-center z-25 pointer-events-none bg-black/45 backdrop-blur-xl">
                         <div className="px-3 py-1 bg-white/10 border border-white/20 rounded rotate-[-2deg] backdrop-blur-sm shadow-md">
                           <span className="text-white/60 font-mono text-[8px] sm:text-xs uppercase tracking-[0.25em]">
                             STRIP_0{(slotIdx % 9) + 1}
