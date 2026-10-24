@@ -25,9 +25,12 @@ const AboutMeTop = forwardRef<HTMLDivElement, { profileImg: string }>(({ profile
       {/* Background Decorative Text with Parallax */}
       <motion.div
         style={{ y: textY }}
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
+        className="absolute top-12 sm:top-16 md:top-20 inset-x-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
       >
-        <span className="text-[25vw] font-black opacity-[0.03] leading-none text-zinc-500 whitespace-nowrap uppercase">
+        <span
+          className="text-[clamp(3rem,13vw,11rem)] font-black font-Cinzel opacity-10 sm:opacity-12 leading-none tracking-[0.12em] whitespace-nowrap uppercase"
+          style={{ color: 'var(--text-main)' }}
+        >
           Welcome
         </span>
       </motion.div>

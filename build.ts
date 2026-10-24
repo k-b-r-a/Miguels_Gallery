@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { build, type BuildConfig } from 'bun';
 import plugin from 'bun-plugin-tailwind';
-import { existsSync } from 'fs';
+import { existsSync, copyFileSync } from 'fs';
 import { rm } from 'fs/promises';
 import path from 'path';
 
@@ -155,6 +155,12 @@ const result = await build({
   },
   ...cliConfig, // Merge in any CLI-provided options
 });
+
+// Ensure dist/tailwind.css exists for server
+const distCss = result.outputs.find(o => o.path.endsWith('.css'));
+if (distCss) {
+  copyFileSync(distCss.path, path.join(outdir, 'tailwind.css'));
+}
 
 // Print the results
 const end = performance.now();
