@@ -11,6 +11,7 @@ import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { AnimatePresence, motion, useScroll, useTransform, LayoutGroup } from 'framer-motion';
 import imageCompression from 'browser-image-compression';
 import VhsCylinderCarousel, { type PhotoItem } from './VhsCylinderCarousel';
+import UploadModal, { type UploadData } from './UploadModal';
 
 export type { PhotoItem };
 
@@ -24,6 +25,9 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
   const [items, setItems] = useState<PhotoItem[]>([]);
   const { isAdmin, token } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [pendingDeletions, setPendingDeletions] = useState<Set<string>>(new Set());
@@ -68,25 +72,68 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
       const arrayFiles = Array.from(files);
       const processedFiles: File[] = [];
       setIsUploading(true);
-      for (const file of arrayFiles) {
-        if (file.type.startsWith('image/') && file.size > 10 * 1024 * 1024) {
-          try {
-            const compressed = await imageCompression(file, { maxSizeMB: 9.5, maxWidthOrHeight: 4096, useWebWorker: true, initialQuality: 0.9 });
-            processedFiles.push(new File([compressed], file.name, { type: file.type }));
-          } catch { processedFiles.push(file); }
-        } else if (file.type.startsWith('video/') && file.size > 100 * 1024 * 1024) {
-          alert(`Video "${file.name}" supera 100MB.`);
-          setIsUploading(false); return;
-        } else processedFiles.push(file);
+      try {
+        for (const file of arrayFiles) {
+          if (file.type.startsWith('image/') && file.size > 10 * 1024 * 1024) {
+            try {
+              const compressed = await imageCompression(file, { maxSizeMB: 9.5, maxWidthOrHeight: 4096, useWebWorker: true, initialQuality: 0.9 });
+              processedFiles.push(new File([compressed], file.name, { type: file.type }));
+            } catch {
+              processedFiles.push(file);
+            }
+          } else if (file.type.startsWith('video/') && file.size > 100 * 1024 * 1024) {
+            alert('El video supera el límite de 100MB.');
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            return;
+          } else {
+            processedFiles.push(file);
+          }
+        }
+        if (processedFiles.length > 0) {
+          setSelectedFiles(processedFiles);
+          setIsUploadModalOpen(true);
+        }
+      } finally {
+        setIsUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
-      if (processedFiles.length > 0 && token) {
-        const formData = new FormData();
-        processedFiles.forEach(f => formData.append('images', f));
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/photos/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData });
-          if (res.ok) window.location.reload();
-        } catch { alert('Error al subir'); } finally { setIsUploading(false); }
+    }
+  };
+
+  const handleConfirmUpload = async (data: UploadData) => {
+    if (selectedFiles.length === 0 || !token) return;
+    setIsUploading(true);
+    const formData = new FormData();
+    selectedFiles.forEach(f => formData.append('images', f));
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    formData.append('category', data.category);
+    formData.append('location', data.location);
+    formData.append('isFeatured', String(data.isFeatured));
+    if (data.peopleTags && data.peopleTags.length > 0) {
+      formData.append('peopleTags', JSON.stringify(data.peopleTags));
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/photos/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const newPhotos = (await res.json()) as PhotoItem[];
+        setItems(prev => [...newPhotos, ...prev]);
+        setIsUploadModalOpen(false);
+        setSelectedFiles([]);
+      } else {
+        const errorData = (await res.json()) as { error?: string };
+        alert('Error al subir: ' + (errorData.error || 'Desconocido'));
       }
+    } catch {
+      alert('Error al subir las fotografías');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -158,8 +205,19 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
           </div>
           <AnimatePresence>{selectedCategories.length > 0 && (<motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="mt-8 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" /><span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40" style={{ color: 'var(--text-main)' }}>Filtrando por {selectedCategories.join(', ')}</span></motion.div>)}</AnimatePresence>
         </motion.div>
-        {isAdmin && (<div className="mt-8 flex flex-wrap justify-center gap-4"><label className="flex items-center gap-3 px-8 py-4 bg-purple-600 text-white rounded-2xl font-bold cursor-pointer hover:bg-purple-700 transition-all shadow-xl active:scale-95">{isUploading ? 'Procesando...' : <><PlusIcon className="w-6 h-6" />Agregar Nueva Foto<input type="file" className="hidden" onChange={handleFileSelect} disabled={isUploading} multiple /></>}</label>{pendingDeletions.size > 0 && (<motion.button initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} onClick={handleSaveDeletions} disabled={isSaving} className="px-8 py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all shadow-xl active:scale-95 flex items-center gap-3">{isSaving ? 'Guardando...' : `Guardar cambios (${pendingDeletions.size})`}</motion.button>)}</div>)}
+        {isAdmin && (<div className="mt-8 flex flex-wrap justify-center gap-4"><label className="flex items-center gap-3 px-8 py-4 bg-purple-600 text-white rounded-2xl font-bold cursor-pointer hover:bg-purple-700 transition-all shadow-xl active:scale-95">{isUploading ? 'Procesando...' : <><PlusIcon className="w-6 h-6" />Agregar Nueva Foto<input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} disabled={isUploading} multiple /></>}</label>{pendingDeletions.size > 0 && (<motion.button initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} onClick={handleSaveDeletions} disabled={isSaving} className="px-8 py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all shadow-xl active:scale-95 flex items-center gap-3">{isSaving ? 'Guardando...' : `Guardar cambios (${pendingDeletions.size})`}</motion.button>)}</div>)}
       </div>
+
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          setSelectedFiles([]);
+        }}
+        onUpload={handleConfirmUpload}
+        files={selectedFiles}
+        isUploading={isUploading}
+      />
 
       <div ref={gridStartRef} className="w-full px-4 sm:px-6 lg:px-10">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} modifiers={[restrictToWindowEdges]}>
@@ -180,8 +238,8 @@ const BentoGrid = forwardRef<HTMLDivElement>((_props, ref) => {
         </DndContext>
       </div>
     </div>
-  )
-})
+  );
+});
 
 BentoGrid.displayName = 'BentoGrid';
 export default BentoGrid;

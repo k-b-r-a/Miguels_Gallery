@@ -115,7 +115,7 @@ function AdminSettingsPanel({ settings, onUpdate }: { settings: GlobalSettings, 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-400 block mb-3">Foto Perfil Superior (Inicio)</label>
             <div className="flex gap-4 items-center">
-              <img src={settings.profileImgTop} className="w-14 h-16 rounded-xl object-cover border border-white/10" alt="" />
+              <img src={settings.profileImgTop} className="w-14 h-16 rounded-xl object-cover border border-white/10" alt={'Foto de perfil superior de Miguel Sedano'} />
               <label className="grow p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors">
                 <UserCircleIcon className="w-5 h-5 text-white/40" />
                 <span className="text-xs font-bold text-white">{isUploading === 'profileImgTop' ? 'Subiendo...' : 'Cambiar Foto'}</span>
@@ -128,7 +128,7 @@ function AdminSettingsPanel({ settings, onUpdate }: { settings: GlobalSettings, 
           <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-400 block mb-3">Foto Perfil Inferior (Sobre mí)</label>
             <div className="flex gap-4 items-center">
-              <img src={settings.profileImgBottom} className="w-14 h-16 rounded-xl object-cover border border-white/10" alt="" />
+              <img src={settings.profileImgBottom} className="w-14 h-16 rounded-xl object-cover border border-white/10" alt={'Foto de perfil sobre mí de Miguel Sedano'} />
               <label className="grow p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors">
                 <UserCircleIcon className="w-5 h-5 text-white/40" />
                 <span className="text-xs font-bold text-white">{isUploading === 'profileImgBottom' ? 'Subiendo...' : 'Cambiar Foto'}</span>
@@ -319,7 +319,7 @@ function MainContent() {
                 {settings.parallaxTypeTop === 'video' ? (
                   <video src={settings.parallaxBgTop} autoPlay loop muted playsInline className="w-full h-full object-cover" />
                 ) : (
-                  <img src={settings.parallaxBgTop} className="w-full h-full object-cover" alt="" />
+                  <img src={settings.parallaxBgTop} className="w-full h-full object-cover" alt={'Fondo superior de la galería'} />
                 )}
                 <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/20" />
               </motion.div>
@@ -337,7 +337,7 @@ function MainContent() {
                 {settings.parallaxTypeBottom === 'video' ? (
                   <video src={settings.parallaxBgBottom} autoPlay loop muted playsInline className="w-full h-full object-cover" />
                 ) : (
-                  <img src={settings.parallaxBgBottom} className="w-full h-full object-cover" alt="" />
+                  <img src={settings.parallaxBgBottom} className="w-full h-full object-cover" alt={'Fondo inferior de la galería'} />
                 )}
                 <div className="absolute inset-0 bg-linear-to-b from-black/20 via-transparent to-transparent" />
               </motion.div>

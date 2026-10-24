@@ -114,7 +114,7 @@ export default function UploadModal({ isOpen, onClose, onUpload, files, isUpload
                         {p.type.startsWith('video') ? (
                           <video src={p.url} className="w-full h-full object-cover" autoPlay loop muted playsInline />
                         ) : (
-                          <img src={p.url} className="w-full h-full object-cover" alt="" />
+                          <img src={p.url} className="w-full h-full object-cover" alt={data.title ? `${data.title} - Vista previa ${idx + 1}` : `Vista previa ${idx + 1}`} />
                         )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
                            <span className="text-[10px] font-black text-white px-2 py-1 bg-black/60 rounded-lg">Fichero {idx + 1}</span>
